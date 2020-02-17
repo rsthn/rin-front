@@ -1,0 +1,31 @@
+{
+  "name": "@rsthn/rin-front",
+  "version": "1.0.0",
+  "description": "Rin Front-End Library",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo Ok"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rsthn/rin-front.git"
+  },
+  "author": "RedStar Technologies",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rsthn/rin-front/issues"
+  },
+  "homepage": "https://github.com/rsthn/rin-front#readme",
+  "files": [
+    "*.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "dependencies": {
+    "base-64": "^0.1.0",
+    "node-fetch": "^2.6.0"
+  },
+  "peerDependencies": {
+    "@rsthn/rin": "^2.0.5"
+  }
+}
