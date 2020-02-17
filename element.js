@@ -369,7 +369,7 @@ const Element = module.exports =
 	},
 
 	/**
-	**	Executed whem the element is attached to the DOM tree.
+	**	Executed when the element is attached to the DOM tree.
 	**
 	**	>> void onConnected ();
 	*/
@@ -383,6 +383,24 @@ const Element = module.exports =
 	**	>> void onDisconnected ();
 	*/
 	onDisconnected: function()
+	{
+	},
+
+	/**
+	**	Executed on the root element when a child element has data-ref attribute and it was added to the root.
+	**
+	**	>> void onRefAdded (string name);
+	*/
+	onRefAdded: function (name)
+	{
+	},
+
+	/**
+	**	Executed on the root element when a child element has data-ref attribute and it was removed from the root.
+	**
+	**	>> void onRefRemoved (string name);
+	*/
+	onRefRemoved: function (name)
 	{
 	},
 
@@ -580,18 +598,20 @@ const Element = module.exports =
 					this.__ctor();
 				}
 
+				if (this.root)
+					this.root.onRefAdded (this.dataset.ref);
+
 				this.onConnected();
 			}
 
 			disconnectedCallback()
 			{
-				if (this.dataset.ref)
+				if (this.dataset.ref && this.root)
 				{
-					let root = this.findRoot();
-					if (root) {
-						root[this.dataset.ref] = null;
-						this.root = null;
-					}
+					this.root.onRefRemoved (this.dataset.ref);
+
+					root[this.dataset.ref] = null;
+					this.root = null;
 				}
 
 				this.onDisconnected();

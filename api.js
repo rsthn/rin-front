@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-let base64 = require('base-64');
+const base64 = require('base-64');
 
 if (!('fetch' in globalThis))
 	var fetch = require('node-fetch');
