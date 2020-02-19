@@ -217,10 +217,11 @@ const Element = module.exports =
 	},
 
 	/**
-	**	Listens for an event for elements matching the specified selector.
+	**	Listens for an event for elements matching the specified selector, returns an object with a single method remove() used
+	**	to remove the listener when it is no longer needed.
 	**
-	**	>> void listen (string eventName, string selector, function handler);
-	**	>> void listen (string eventName, function handler);
+	**	>> object listen (string eventName, string selector, function handler);
+	**	>> object listen (string eventName, function handler);
 	*/
 	listen: function (eventName, selector, handler)
 	{
@@ -230,8 +231,13 @@ const Element = module.exports =
 			selector = null;
 		}
 
-		this.addEventListener (eventName, (evt) =>
+		let callback = null;
+		let self = this;
+
+		this.addEventListener (eventName, callback = (evt) =>
 		{
+			let result = true;
+
 			if (selector && selector != "*")
 			{
 				let elems = this.querySelectorAll(selector);
@@ -243,7 +249,7 @@ const Element = module.exports =
 					let i = Rin.indexOf(elems, evt.source);
 					if (i !== null)
 					{
-						handler.call (this, evt, evt.detail);
+						result = handler.call (this, evt, evt.detail);
 						break;
 					}
 					else
@@ -254,11 +260,17 @@ const Element = module.exports =
 			}
 			else
 			{
-				handler.call (this, evt, evt.detail);
+				result = handler.call (this, evt, evt.detail);
 			}
 
-			evt.stopPropagation();
+			if (result !== true)
+			{
+				evt.preventDefault();
+				evt.stopPropagation();
+			}
 		});
+
+		return { removed: false, remove: function() { if (this.removed) return; this.removed = true; self.removeEventListener(eventName, callback); } };
 	},
 
 	/**
