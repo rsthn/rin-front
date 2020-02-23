@@ -88,8 +88,7 @@ const Element = module.exports =
 	{
 		if (!model) return this;
 
-		if (!(model instanceof this.modelt))
-			model = new this.modelt (model);
+		model = Rin.ensureTypeOf(this.modelt, model);
 
 		if (this.model != null)
 		{
@@ -106,7 +105,7 @@ const Element = module.exports =
 		this.model.addEventListener ("propertyChanged", this.onModelPropertyPreChanged, this);
 		this.model.addEventListener ("propertyRemoved", this.onModelPropertyRemoved, this);
 
-		this.onModelPreChanged(null, { fields: Object.keys(this.model.properties) });
+		this.model.update();
 		return this;
 	},
 
@@ -201,11 +200,12 @@ const Element = module.exports =
 				switch (name)
 				{
 					case "keyup": case "keydown":
-						this.listen (name, selector, function (evt, args)
+						this.listen (name, selector, function (evt)
 						{
 							if (Rin.indexOf(args, evt.keyCode.toString()) != -1)
 								return hdl (evt, args);
 						});
+
 						continue;
 				}
 			}
@@ -247,7 +247,7 @@ const Element = module.exports =
 				while (evt.source !== this)
 				{
 					let i = Rin.indexOf(elems, evt.source);
-					if (i !== null)
+					if (i !== -1)
 					{
 						result = handler.call (this, evt, evt.detail);
 						break;
@@ -314,6 +314,9 @@ const Element = module.exports =
 		list = this.querySelectorAll("[data-watch]");
 		for (let i = 0; i < list.length; i++)
 		{
+			for (let j of list[i].querySelectorAll('.pseudo'))
+				j.remove();
+
 			list[i]._template = Template.compile(list[i].innerHTML);
 			list[i]._watch = new RegExp(list[i].dataset.watch);
 			list[i].innerHTML = '';
