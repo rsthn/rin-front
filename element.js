@@ -236,7 +236,11 @@ const Element = module.exports =
 
 		this.addEventListener (eventName, callback = (evt) =>
 		{
-			let result = true;
+			if ('handled' in evt)
+				return;
+
+			evt.handled = false;
+			evt.continuePropagation = false;
 
 			if (selector && selector != "*")
 			{
@@ -249,7 +253,8 @@ const Element = module.exports =
 					let i = Rin.indexOf(elems, evt.source);
 					if (i !== -1)
 					{
-						result = handler.call (this, evt, evt.detail);
+						evt.handled = true;
+						handler.call (this, evt, evt.detail);
 						break;
 					}
 					else
@@ -260,14 +265,15 @@ const Element = module.exports =
 			}
 			else
 			{
-				result = handler.call (this, evt, evt.detail);
+				evt.handled = true;
+				handler.call (this, evt, evt.detail);
 			}
 
-			if (result !== true)
-			{
+			if (evt.handled)
 				evt.preventDefault();
+
+			if (!evt.continuePropagation)
 				evt.stopPropagation();
-			}
 		});
 
 		return { removed: false, remove: function() { if (this.removed) return; this.removed = true; self.removeEventListener(eventName, callback); } };
@@ -291,7 +297,7 @@ const Element = module.exports =
 	setInnerHTML: function (value)
 	{
 		this.innerHTML = value;
-		this.collectWatchers ();
+		this.collectWatchers();
 	},
 
 	/**
