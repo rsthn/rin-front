@@ -59,6 +59,9 @@ const Element = module.exports =
 		this._list_visible = [];
 		this._list_property = [];
 
+		if (this.model != null)
+			this.setModel (this.model);
+
 		this.init();
 
 		Object.keys(this._super).reverse().forEach(i =>
@@ -82,9 +85,9 @@ const Element = module.exports =
 	/**
 	**	Sets the model of the element and executes the modelChanged event handler.
 	**
-	**	>> Element setModel (Model model);
+	**	>> Element setModel (Model model, [bool update=true]);
 	*/
-	setModel: function (model)
+	setModel: function (model, update)
 	{
 		if (!model) return this;
 
@@ -105,7 +108,9 @@ const Element = module.exports =
 		this.model.addEventListener ("propertyChanged", this.onModelPropertyPreChanged, this);
 		this.model.addEventListener ("propertyRemoved", this.onModelPropertyRemoved, this);
 
-		this.model.update();
+		if (update !== false)
+			this.model.update();
+
 		return this;
 	},
 
