@@ -236,11 +236,11 @@ const Element = module.exports =
 
 		this.addEventListener (eventName, callback = (evt) =>
 		{
-			if ('handled' in evt)
+			if (evt.handled === true)
 				return;
 
 			evt.handled = false;
-			evt.continuePropagation = false;
+			evt.continuePropagation = true;
 
 			if (selector && selector != "*")
 			{
@@ -254,6 +254,8 @@ const Element = module.exports =
 					if (i !== -1)
 					{
 						evt.handled = true;
+						evt.continuePropagation = /^(click)$/.test(eventName) ? true : false
+
 						handler.call (this, evt, evt.detail);
 						break;
 					}
@@ -266,11 +268,12 @@ const Element = module.exports =
 			else
 			{
 				evt.handled = true;
+				evt.continuePropagation = /^(click)$/.test(eventName) ? true : false
+
 				handler.call (this, evt, evt.detail);
 			}
 
-			if (evt.handled)
-				evt.preventDefault();
+			evt.preventDefault();
 
 			if (!evt.continuePropagation)
 				evt.stopPropagation();
