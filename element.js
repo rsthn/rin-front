@@ -60,7 +60,11 @@ const Element = module.exports =
 		this._list_property = [];
 
 		if (this.model != null)
-			this.setModel (this.model);
+		{
+			let tmp = this.model;
+			this.model = null;
+			this.setModel (tmp);
+		}
 
 		this.init();
 
@@ -173,7 +177,7 @@ const Element = module.exports =
 			var name = i == -1 ? evtstr : evtstr.substr(0, i);
 			var selector = i == -1 ? "" : evtstr.substr(i + 1);
 
-			var args = null;
+			let args = null;
 
 			var j = name.indexOf("(");
 			if (j != -1)
@@ -209,6 +213,8 @@ const Element = module.exports =
 						{
 							if (Rin.indexOf(args, evt.keyCode.toString()) != -1)
 								return hdl (evt, args);
+
+							evt.continuePropagation = true;
 						});
 
 						continue;
@@ -241,10 +247,9 @@ const Element = module.exports =
 
 		this.addEventListener (eventName, callback = (evt) =>
 		{
-			if (evt.handled === true)
+			if (evt.continuePropagation === false)
 				return;
 
-			evt.handled = false;
 			evt.continuePropagation = true;
 
 			if (selector && selector != "*")
@@ -255,11 +260,10 @@ const Element = module.exports =
 
 				while (evt.source !== this)
 				{
-					let i = Rin.indexOf(elems, evt.source);
+					let i = Rin.indexOf (elems, evt.source);
 					if (i !== -1)
 					{
-						evt.handled = true;
-						evt.continuePropagation = /^(click)$/.test(eventName) ? true : false
+						evt.continuePropagation = false;
 
 						handler.call (this, evt, evt.detail);
 						break;
@@ -272,8 +276,7 @@ const Element = module.exports =
 			}
 			else
 			{
-				evt.handled = true;
-				evt.continuePropagation = /^(click)$/.test(eventName) ? true : false
+				evt.continuePropagation = false;
 
 				handler.call (this, evt, evt.detail);
 			}
@@ -282,9 +285,10 @@ const Element = module.exports =
 
 			if (!evt.continuePropagation)
 				evt.stopPropagation();
-		});
+		},
+		true);
 
-		return { removed: false, remove: function() { if (this.removed) return; this.removed = true; self.removeEventListener(eventName, callback); } };
+		return { removed: false, remove: function() { if (this.removed) return; this.removed = true; self.removeEventListener(eventName, callback, true); } };
 	},
 
 	/**
