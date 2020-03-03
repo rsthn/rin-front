@@ -52,9 +52,6 @@ const Element = module.exports =
 	*/
 	__ctor: function()
 	{
-		if (this.events)
-			this.bindEvents (this.events);
-
 		this._list_watch = [];
 		this._list_visible = [];
 		this._list_property = [];
@@ -73,6 +70,9 @@ const Element = module.exports =
 			if ('init' in this._super[i])
 				this._super[i].init();
 		});
+
+		if (this.events)
+			this.bindEvents (this.events);
 
 		this.collectWatchers();
 	},
@@ -247,6 +247,9 @@ const Element = module.exports =
 
 		this.addEventListener (eventName, callback = (evt) =>
 		{
+			let root = this.findRoot (evt.target);
+			if (root !== this) return;
+
 			if (evt.continuePropagation === false)
 				return;
 
@@ -281,10 +284,11 @@ const Element = module.exports =
 				handler.call (this, evt, evt.detail);
 			}
 
-			evt.preventDefault();
-
 			if (!evt.continuePropagation)
+			{
+				evt.preventDefault();
 				evt.stopPropagation();
+			}
 		},
 		true);
 
@@ -598,9 +602,9 @@ const Element = module.exports =
 				this.onCreated();
 			}
 
-			findRoot()
+			findRoot(srcElement)
 			{
-				let elem = this.parentElement;
+				let elem = srcElement ? srcElement : this.parentElement;
 
 				while (elem != null)
 				{
@@ -655,6 +659,7 @@ const Element = module.exports =
 
 		const proto = { };
 		const _super = { };
+		const events = { };
 
 		for (let i = 0; i < protos.length; i++)
 		{
@@ -681,11 +686,16 @@ const Element = module.exports =
 			if ('_super' in protos[i])
 				Rin.override (_super, protos[i]._super);
 
+			if ('events' in protos[i])
+				Rin.override (events, protos[i].events);
+
 			Rin.override (newElement.prototype, protos[i]);
 			Rin.override (proto, protos[i]);
 		}
 
 		newElement.prototype._super = _super;
+		newElement.prototype.events = events;
+
 		proto._super = _super;
 
 		customElements.define (name, newElement);
