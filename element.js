@@ -540,6 +540,10 @@ const Element = module.exports =
 
 					default:
 						this._list_property[i].value = args.value;
+
+						if (this._list_property[i].value != args.value)
+							trigger = false;
+
 						break;
 				}
 
