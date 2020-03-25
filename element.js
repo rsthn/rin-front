@@ -74,18 +74,33 @@ const Element = module.exports =
 		if (this.events)
 			this.bindEvents (this.events);
 
+		const ready = () =>
+		{
+			this.ready();
+
+			Object.keys(this._super).reverse().forEach(i =>
+			{
+				if ('ready' in this._super[i])
+					this._super[i].ready();
+			});
+
+			this.collectWatchers();
+		};
+
 		if (this.children.length == 0)
 		{
-			this._mutationObserver = new MutationObserver (() => {
+			this._mutationObserver = new MutationObserver (() =>
+			{
 				this._mutationObserver.disconnect();
 				this._mutationObserver = null;
-				this.collectWatchers();
+
+				ready();
 			});
 
 			this._mutationObserver.observe(this, { attributes: false, childList: true, subtree: true });
 		}
 		else
-			this.collectWatchers();
+			ready();
 	},
 
 	/**
@@ -94,6 +109,15 @@ const Element = module.exports =
 	**	>> void init();
 	*/
 	init: function()
+	{
+	},
+
+	/**
+	**	Executed when the children of the element are ready.
+	**
+	**	>> void ready();
+	*/
+	ready: function()
 	{
 	},
 
