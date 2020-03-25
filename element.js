@@ -74,7 +74,18 @@ const Element = module.exports =
 		if (this.events)
 			this.bindEvents (this.events);
 
-		this.collectWatchers();
+		if (this.children.length == 0)
+		{
+			this._mutationObserver = new MutationObserver (() => {
+				this._mutationObserver.disconnect();
+				this._mutationObserver = null;
+				this.collectWatchers();
+			});
+
+			this._mutationObserver.observe(this, { attributes: false, childList: true, subtree: true });
+		}
+		else
+			this.collectWatchers();
 	},
 
 	/**
@@ -312,6 +323,12 @@ const Element = module.exports =
 	*/
 	setInnerHTML: function (value)
 	{
+		if (this._mutationObserver != null)
+		{
+			this._mutationObserver.disconnect();
+			this._mutationObserver = null;
+		}
+
 		this.innerHTML = value;
 		this.collectWatchers();
 	},
