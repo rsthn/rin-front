@@ -1,6 +1,6 @@
 {
   "name": "@rsthn/rin-front",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Rin Front-End Library",
   "main": "main.js",
   "scripts": {
@@ -22,10 +22,8 @@
     "README.md"
   ],
   "dependencies": {
+    "@rsthn/rin": "^2.0.7",
     "base-64": "^0.1.0",
     "node-fetch": "^2.6.0"
-  },
-  "peerDependencies": {
-    "@rsthn/rin": "^2.0.5"
   }
 }

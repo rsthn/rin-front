@@ -1,5 +1,5 @@
 /*
-**	rin-front/main
+**	rin-front/elements
 **
 **	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -16,9 +16,5 @@
 
 module.exports =
 {
-	Router: require('./router'),
-	Element: require('./element'),
-	Api: require('./api'),
-
-	Elements: require('./elements')
+	Tabs: require('./elems/r-tabs')
 };
