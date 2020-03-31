@@ -154,8 +154,13 @@ Element.register ('r-tabs',
 	{
 		if (this.dataset.baseRoute)
 		{
-			window.location = "#" + this.dataset.baseRoute.replace('@', name);
-			return;
+			const hash = "#" + this.dataset.baseRoute.replace('@', name);
+
+			if (window.location.hash != hash)
+			{
+				window.location = hash;
+				return;
+			}
 		}
 
 		this._showTab (name);

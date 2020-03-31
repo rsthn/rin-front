@@ -28,9 +28,14 @@ const Element = module.exports =
 	protos: { },
 
 	/**
-	**	Indicates if the element is a root element, that is, the target element to attach elements having data-ref attribute.
+	**	Indicates if the element is a root element, that is, the target element to attach child elements having data-ref attribute.
 	*/
-	isRoot: false,
+	isRoot: true,
+
+	/**
+	**	All children elements having data-ref are added to this map (and to the element itself).
+	*/
+	refs: null,
 
 	/**
 	**	Model type (class) for the element's model.
@@ -56,6 +61,8 @@ const Element = module.exports =
 		this._list_visible = [];
 		this._list_property = [];
 
+		this.refs = { };
+
 		if (this.model != null)
 		{
 			let tmp = this.model;
@@ -63,6 +70,7 @@ const Element = module.exports =
 			this.setModel (tmp);
 		}
 
+		this.isReady = false;
 		this.init();
 
 		Object.keys(this._super).reverse().forEach(i =>
@@ -77,6 +85,7 @@ const Element = module.exports =
 		const ready = () =>
 		{
 			this.ready();
+			this.isReady = true;
 
 			Object.keys(this._super).reverse().forEach(i =>
 			{
@@ -85,22 +94,48 @@ const Element = module.exports =
 			});
 
 			this.collectWatchers();
+
+			if (this.root && this.root._mutationHandler)
+				this.root._mutationHandler();
 		};
 
-		if (this.children.length == 0)
+		let timeout = null;
+
+		this._mutationHandler = () =>
 		{
-			this._mutationObserver = new MutationObserver (() =>
+			if (this.children.length == 0)
+				return;
+
+			for (let i in this.refs)
 			{
+				if (!this.refs[i].isReady) return;
+			}
+
+			if (timeout) clearTimeout(timeout);
+
+			timeout = setTimeout(() =>
+			{
+				timeout = null;
+
+				for (let i in this.refs)
+				{
+					if (!this.refs[i].isReady) return;
+				}
+
+				this._mutationHandler = null;
+
 				this._mutationObserver.disconnect();
 				this._mutationObserver = null;
 
 				ready();
-			});
+			},
+			50);
+		};
 
-			this._mutationObserver.observe(this, { attributes: false, childList: true, subtree: true });
-		}
-		else
-			ready();
+		this._mutationObserver = new MutationObserver (this._mutationHandler);
+		this._mutationObserver.observe(this, { attributes: false, childList: true, subtree: false });
+
+		this._mutationHandler();
 	},
 
 	/**
@@ -349,8 +384,8 @@ const Element = module.exports =
 	{
 		if (this._mutationObserver != null)
 		{
-			this._mutationObserver.disconnect();
-			this._mutationObserver = null;
+			this.innerHTML = value;
+			return;
 		}
 
 		this.innerHTML = value;
@@ -659,7 +694,7 @@ const Element = module.exports =
 					elem = elem.parentElement;
 				}
 
-				return globalThis;
+				return global;
 			}
 
 			connectedCallback()
@@ -670,6 +705,8 @@ const Element = module.exports =
 					if (root)
 					{
 						root[this.dataset.ref] = this;
+						root.refs[this.dataset.ref] = this;
+
 						this.root = root;
 					}
 				}
@@ -693,6 +730,8 @@ const Element = module.exports =
 					this.root.onRefRemoved (this.dataset.ref);
 
 					root[this.dataset.ref] = null;
+					root.refs[this.dataset.ref] = null;
+
 					this.root = null;
 				}
 
