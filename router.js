@@ -186,8 +186,8 @@ let _Router = module.exports =
 
 		this.alreadyAttached = true;
 
-		if ('onhashchange' in globalThis)
-			globalThis.onhashchange = this.onLocationChanged.bind(this);
+		if ('onhashchange' in global)
+			global.onhashchange = this.onLocationChanged.bind(this);
 	},
 
 	/**
@@ -211,7 +211,7 @@ let _Router = module.exports =
 		if (location == this.location) return;
 
 		if (silent) this.ignoreHashchangeEvent++;
-		globalThis.location.hash = location;
+		global.location.hash = location;
 	},
 
 	/**
@@ -393,7 +393,7 @@ let _Router = module.exports =
 
 		if (cLocation != rLocation)
 		{
-			globalThis.location.replace("#" + rLocation);
+			global.location.replace("#" + rLocation);
 			return;
 		}
 

@@ -16,7 +16,7 @@
 
 const base64 = require('base-64');
 
-if (!('fetch' in globalThis))
+if (!('fetch' in global))
 	var fetch = require('node-fetch');
 
 /**
@@ -60,9 +60,9 @@ module.exports =
 	*/
 	responseFilter: function (res, req)
 	{
-		if (res.response == 408 && globalThis.location)
+		if (res.response == 408 && global.location)
 		{
-			globalThis.location.reload();
+			global.location.reload();
 			return false;
 		}
 
@@ -155,9 +155,9 @@ module.exports =
 	*/
 	_showProgress: function ()
 	{
-		if ('document' in globalThis) {
+		if ('document' in global) {
 			this._requestLevel++;
-			if (this._requestLevel > 0) globalThis.document.documentElement.classList.add('busy');
+			if (this._requestLevel > 0) global.document.documentElement.classList.add('busy');
 		}
 	},
 
@@ -166,9 +166,9 @@ module.exports =
 	*/
 	_hideProgress: function ()
 	{
-		if ('document' in globalThis) {
+		if ('document' in global) {
 			this._requestLevel--;
-			if (!this._requestLevel) globalThis.document.documentElement.classList.remove('busy');
+			if (!this._requestLevel) global.document.documentElement.classList.remove('busy');
 		}
 	},
 
