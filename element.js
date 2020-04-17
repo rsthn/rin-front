@@ -435,7 +435,7 @@ const Element = module.exports =
 		list = this.querySelectorAll("[data-property]");
 		for (let i = 0; i < list.length; i++)
 		{
-			list[i].onchange = function()
+			list[i].onchange = list[i].onblur = function()
 			{
 				switch (this.type)
 				{
@@ -452,6 +452,14 @@ const Element = module.exports =
 						break;
 				}
 			};
+
+			if (list[i].tagName == 'SELECT')
+			{
+				list[i].onmouseup = function()
+				{
+					self.getModel().set(this.name, this.value);
+				};
+			}
 
 			list[i].name = list[i].dataset.property;
 
