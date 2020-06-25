@@ -1,35 +1,31 @@
 {
-  "name": "@rsthn/rin-front",
-  "version": "1.0.6",
-  "description": "Rin Front-End Library",
-  "main": "main.js",
-  "scripts": {
-	"test": "echo Ok",
-	"build": "browserify main-packed.js | uglifyjs > dist/rin-front.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rsthn/rin-front.git"
-  },
-  "author": "RedStar Technologies",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/rsthn/rin-front/issues"
-  },
-  "homepage": "https://github.com/rsthn/rin-front#readme",
-  "files": [
-    "elems/",
-    "*.js",
-    "LICENSE",
-    "README.md"
-  ],
-  "dependencies": {
-    "@rsthn/rin": "^2.0.9",
-    "base-64": "^0.1.0",
-    "node-fetch": "^2.6.0"
-  },
-  "devDependencies": {
-    "browserify": "^16.5.1",
-    "uglify-es": "^3.3.9"
-  }
+    "name": "@rsthn/rin-front",
+    "version": "1.0.7",
+    "description": "Rin Front-End Library",
+    "main": "main.js",
+    "scripts": {
+        "test": "echo Ok",
+        "deploy": "node ./scripts/deploy.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rsthn/rin-front.git"
+    },
+    "author": "RedStar Technologies",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/rsthn/rin-front/issues"
+    },
+    "homepage": "https://github.com/rsthn/rin-front#readme",
+    "files": [
+        "elems/",
+        "*.js",
+        "LICENSE",
+        "README.md"
+    ],
+    "dependencies": {
+        "@rsthn/rin": "^2.0.9",
+        "base-64": "^0.1.0",
+        "node-fetch": "^2.6.0"
+    }
 }
