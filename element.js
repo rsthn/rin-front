@@ -106,6 +106,14 @@ const Element = module.exports =
 			if (this.children.length == 0)
 				return;
 
+			this.querySelectorAll('[data-pending=true]').forEach(i =>
+			{
+				let root = this.findRoot(i.parentElement);
+				if (root !== this) return;
+
+				i.connectReference(this);
+			});
+
 			for (let i in this.refs)
 			{
 				if (!this.refs[i].isReady) return;
@@ -702,22 +710,35 @@ const Element = module.exports =
 					elem = elem.parentElement;
 				}
 
-				return global;
+				return null;
 			}
 
-			connectedCallback()
+			connectReference(root=null, flags=255)
 			{
-				if (this.dataset.ref)
+				if (!this.dataset.ref) return;
+
+				if (!this.root && (flags & 1) == 1)
 				{
-					let root = this.findRoot();
-					if (root)
+					if (root == null) root = this.findRoot();
+					if (root != null)
 					{
 						root[this.dataset.ref] = this;
 						root.refs[this.dataset.ref] = this;
 
+						delete this.dataset.pending;
 						this.root = root;
 					}
+					else
+						this.dataset.pending = true;
 				}
+
+				if (this.root && (flags & 2) == 2)
+					this.root.onRefAdded (this.dataset.ref);
+			}
+
+			connectedCallback()
+			{
+				this.connectReference(null, 1);
 
 				if (this.invokeConstructor)
 				{
@@ -725,9 +746,7 @@ const Element = module.exports =
 					this.__ctor();
 				}
 
-				if (this.root)
-					this.root.onRefAdded (this.dataset.ref);
-
+				this.connectReference(null, 2);
 				this.onConnected();
 			}
 
@@ -736,6 +755,8 @@ const Element = module.exports =
 				if (this.dataset.ref && this.root)
 				{
 					this.root.onRefRemoved (this.dataset.ref);
+
+					delete this.dataset.pending;
 
 					root[this.dataset.ref] = null;
 					root.refs[this.dataset.ref] = null;
