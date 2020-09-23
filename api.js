@@ -17,7 +17,7 @@
 const base64 = require('base-64');
 
 if (!('fetch' in global))
-	var fetch = require('node-fetch');
+	global.fetch = require('node-fetch');
 
 /**
 **	API interface utility functions.
@@ -60,12 +60,6 @@ module.exports =
 	*/
 	responseFilter: function (res, req)
 	{
-		if (res.response == 408 && global.location)
-		{
-			global.location.reload();
-			return false;
-		}
-
 		return true;
 	},
 
@@ -219,7 +213,7 @@ module.exports =
 		if (this.useReq64 /* && !(params instanceof FormData) */)
 			params = "_req64=" + base64.encode(params);
 
-		(type == 'GET' ? fetch(url + '?_=' + Date.now() + '&' + params) : fetch(url, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, method: 'POST', body: params }))
+		(type == 'GET' ? global.fetch(url + '?_=' + Date.now() + '&' + params) : global.fetch(url, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, method: 'POST', body: params }))
 		.then(result => result.json())
 		.then(result =>
 		{

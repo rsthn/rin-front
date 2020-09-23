@@ -130,6 +130,20 @@ const Element = module.exports =
 					if (!this.refs[i].isReady) return;
 				}
 
+				for (let elem of this.querySelectorAll('[data-ref]'))
+				{
+					if (elem.dataset.linked != 'true')
+					{
+						this[elem.dataset.ref] = elem;
+						this.refs[elem.dataset.ref] = elem;
+
+						elem.dataset.linked = 'true';
+						elem.root = this;
+
+						this.onRefAdded (elem.dataset.ref);
+					}
+				}
+
 				this._mutationHandler = null;
 
 				this._mutationObserver.disconnect();
@@ -726,6 +740,7 @@ const Element = module.exports =
 						root.refs[this.dataset.ref] = this;
 
 						delete this.dataset.pending;
+						this.dataset.linked = 'true';
 						this.root = root;
 					}
 					else
@@ -761,6 +776,7 @@ const Element = module.exports =
 					root[this.dataset.ref] = null;
 					root.refs[this.dataset.ref] = null;
 
+					this.dataset.linked = 'false';
 					this.root = null;
 				}
 
