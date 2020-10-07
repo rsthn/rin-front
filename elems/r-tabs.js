@@ -45,6 +45,8 @@ Element.register ('r-tabs',
 	{
 		'click [data-name]': function (evt)
 		{
+			evt.continuePropagation = true;
+
 			if (this.dataset.baseRoute)
 			{
 				window.location = "#" + this.dataset.baseRoute.replace('@', evt.source.dataset.name);
@@ -101,8 +103,8 @@ Element.register ('r-tabs',
 	},
 
 	/**
-	**	Hides all tabs except the one with the specified exceptName, if none specified then all tabs will be hidden (display: none), additionally
-	**	the respective link item in the tab definition will have class 'active'.
+	**	Hides all tabs except the one with the specified exceptName, if none specified then all tabs will be hidden (adds .hidden CSS class),
+	**	additionally the respective link item in the tab definition will have class 'active'.
 	*/
 	_hideTabsExcept: function (exceptName)
 	{
@@ -114,17 +116,17 @@ Element.register ('r-tabs',
 		{
 			if (this.container.children[i].dataset.name == exceptName)
 			{
-				if (this.container.children[i].style.display == 'none')
-					this.dispatch('tab-activate', { el: this.container.children[i] });
+				if (this.container.children[i].classList.contains('hidden'))
+					this.dispatch('tab-activate', { name: this.container.children[i].dataset.name, el: this.container.children[i] });
 
-				this.container.children[i].style.display = 'block';
+				this.container.children[i].classList.remove('hidden');
 			}
 			else
 			{
-				if (this.container.children[i].style.display == 'block')
-					this.dispatch('tab-deactivate', { el: this.container.children[i] });
+				if (!this.container.children[i].classList.contains('hidden'))
+					this.dispatch('tab-deactivate', { name: this.container.children[i].dataset.name, el: this.container.children[i] });
 
-				this.container.children[i].style.display = 'none';
+				this.container.children[i].classList.add('hidden');
 			}
 		}
 

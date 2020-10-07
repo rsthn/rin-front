@@ -179,6 +179,16 @@ const Element = module.exports =
 	},
 
 	/**
+	**	Returns the root of the element (that is, the 'root' property). If not set it will attempt to find the root first.
+	**
+	**	>> Element getRoot ();
+	*/
+	getRoot: function()
+	{
+		return this.root ? this.root : (this.root = this.findRoot());
+	},
+
+	/**
 	**	Sets the model of the element and executes the modelChanged event handler.
 	**
 	**	>> Element setModel (Model model, [bool update=true]);
