@@ -131,6 +131,7 @@ Element.register ('r-tabs',
 		}
 
 		let links = this.querySelectorAll("[data-name]");
+		if (!links) return;
 
 		for (let i = 0; i < links.length; i++)
 		{

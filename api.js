@@ -16,8 +16,8 @@
 
 const base64 = require('base-64');
 
-if (!('fetch' in global))
-	global.fetch = require('node-fetch');
+if (!('fetch' in globalThis))
+	globalThis.fetch = require('node-fetch');
 
 /**
 **	API interface utility functions.
@@ -149,9 +149,9 @@ module.exports =
 	*/
 	_showProgress: function ()
 	{
-		if ('document' in global) {
+		if ('document' in globalThis) {
 			this._requestLevel++;
-			if (this._requestLevel > 0) global.document.documentElement.classList.add('busy');
+			if (this._requestLevel > 0) globalThis.document.documentElement.classList.add('busy');
 		}
 	},
 
@@ -160,9 +160,9 @@ module.exports =
 	*/
 	_hideProgress: function ()
 	{
-		if ('document' in global) {
+		if ('document' in globalThis) {
 			this._requestLevel--;
-			if (!this._requestLevel) global.document.documentElement.classList.remove('busy');
+			if (!this._requestLevel) globalThis.document.documentElement.classList.remove('busy');
 		}
 	},
 
@@ -213,7 +213,7 @@ module.exports =
 		if (this.useReq64 /* && !(params instanceof FormData) */)
 			params = "_req64=" + base64.encode(params);
 
-		(type == 'GET' ? global.fetch(url + '?_=' + Date.now() + '&' + params) : global.fetch(url, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, method: 'POST', body: params }))
+		(type == 'GET' ? globalThis.fetch(url + '?_=' + Date.now() + '&' + params) : globalThis.fetch(url, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, method: 'POST', body: params }))
 		.then(result => result.json())
 		.then(result =>
 		{
