@@ -62,6 +62,8 @@ Element.register ('r-tabs',
 	*/
 	init: function()
 	{
+		this.className.add('tabs');
+
 		this._routeHandler = (evt, args) =>
 		{
 			if (!args.route.changed)
@@ -131,7 +133,6 @@ Element.register ('r-tabs',
 		}
 
 		let links = this.querySelectorAll("[data-name]");
-		if (!links) return;
 
 		for (let i = 0; i < links.length; i++)
 		{

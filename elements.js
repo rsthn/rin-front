@@ -16,5 +16,7 @@
 
 module.exports =
 {
-	Tabs: require('./elems/r-tabs')
+	Tabs: require('./elems/r-tabs'),
+	Form: require('./elems/r-form'),
+	Panel: require('./elems/r-panel')
 };

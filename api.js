@@ -16,8 +16,8 @@
 
 const base64 = require('base-64');
 
-if (!('fetch' in globalThis))
-	globalThis.fetch = require('node-fetch');
+if (!('fetch' in global))
+	global.fetch = require('node-fetch');
 
 /**
 **	API interface utility functions.
@@ -31,7 +31,7 @@ module.exports =
 	apiUrl: "/api",
 
 	/**
-	**	Indicates if all request data will be packed into a _req64 parameter instead of individual fields.
+	**	Indicates if all request data will be packed into a req64 parameter instead of individual fields.
 	*/
 	useReq64: false,
 
@@ -149,9 +149,9 @@ module.exports =
 	*/
 	_showProgress: function ()
 	{
-		if ('document' in globalThis) {
+		if ('document' in global) {
 			this._requestLevel++;
-			if (this._requestLevel > 0) globalThis.document.documentElement.classList.add('busy');
+			if (this._requestLevel > 0) global.document.documentElement.classList.add('busy');
 		}
 	},
 
@@ -160,9 +160,9 @@ module.exports =
 	*/
 	_hideProgress: function ()
 	{
-		if ('document' in globalThis) {
+		if ('document' in global) {
 			this._requestLevel--;
-			if (!this._requestLevel) globalThis.document.documentElement.classList.remove('busy');
+			if (!this._requestLevel) global.document.documentElement.classList.remove('busy');
 		}
 	},
 
@@ -173,8 +173,16 @@ module.exports =
 	{
 		let s = [];
 
-		for (let i in obj)
-			s.push(encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]));
+		if (obj instanceof FormData)
+		{
+			for (let i of obj.entries())
+				s.push(encodeURIComponent(i[0]) + '=' + encodeURIComponent(i[1]));
+		}
+		else
+		{
+			for (let i in obj)
+				s.push(encodeURIComponent(i) + '=' + encodeURIComponent(obj[i]));
+		}
 
 		return s.join('&');
 	},
@@ -184,10 +192,13 @@ module.exports =
 	*/
 	apiCall: function (params, success, failure, type, retries)
 	{
-		let url = this.apiUrl;
+		let url = this.apiUrl + '?_=' + Date.now();
 
 		if (type != 'GET' && type != 'POST')
 			type = 'auto';
+
+		if (retries === undefined)
+			retries = this.retries;
 
 		if (this._requestPackage)
 		{
@@ -197,40 +208,83 @@ module.exports =
 
 		this._showProgress();
 
-		let request = params;
-		params = this.encodeParams(params);
+		let data = params;
 
-		if (type == 'auto' && !this.useReq64 /*&& !(params instanceof FormData)*/)
+		let options =
 		{
-			type = params.length < 960 ? 'GET' : type;
+			credentials: 'include',
+			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			method: type,
+			body: null,
+			multipart: false
+		};
+
+		if (!(data instanceof FormData))
+		{
+			data = new FormData();
+
+			for (let i in params)
+				data.append(i, params[i]);
 		}
 
-		if (retries === undefined)
-			retries = this.retries;
+		for (let i of data.entries())
+		{
+			if ((i[1] instanceof File) || (i[1] instanceof Blob))
+			{
+				options.method = 'POST';
+				options.headers['Content-Type'] = 'multipart/form-data';
+				options.multipart = true;
+				break;
+			}
+		}
 
-		if (type == 'auto') type = 'POST';
+		if (this.useReq64 && !options.multipart)
+		{
+			let tmp = new FormData();
+			tmp.append('req64', base64.encode(this.encodeParams(data)));
+			data = tmp;
+		}
 
-		if (this.useReq64 /* && !(params instanceof FormData) */)
-			params = "_req64=" + base64.encode(params);
+		if (options.method == 'auto')
+		{
+			let l = 0;
 
-		(type == 'GET' ? globalThis.fetch(url + '?_=' + Date.now() + '&' + params) : globalThis.fetch(url, { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, method: 'POST', body: params }))
+			options.method = 'GET';
+
+			for (let i of data.entries())
+			{
+				l += i[0].length + i[1].length + 2;
+
+				if (l > 960)
+				{
+					options.method = 'POST';
+					break;
+				}
+			}	
+		}
+
+		if (options.method == 'GET')
+			url += '&' + this.encodeParams(data);
+
+		global.fetch(url, options)
 		.then(result => result.json())
 		.then(result =>
 		{
 			this._hideProgress();
 			if (!success) return
 
-			if (this.responseFilter(result, request))
-				success(result, request);
+			if (this.responseFilter(result, params)) {
+				try { success(result, params); } catch(e) { }
+			}
 		})
 		.catch(err =>
 		{
 			this._hideProgress();
 
 			if (retries == 0) {
-				if (failure) failure(request);
+				if (failure) failure(params);
 			} else {
-				this.apiCall (request, success, failure, type, retries-1);
+				this.apiCall (data, success, failure, type, retries-1);
 			}
 		});
 	},

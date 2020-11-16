@@ -16,17 +16,23 @@
 
 const { Rin, Model, Template } = require('@rsthn/rin');
 
+/**
+**	Map containing the original prototypes for all registered elements.
+*/
+const elementPrototypes = { };
+
+/**
+**	Map containing the final classes for all registered elements.
+*/
+const elementClasses = { };
+
+
 /*
 **	Base class for custom elements.
 */
 
 const Element = module.exports = 
 {
-	/**
-	**	Map containing the original prototypes for all registered elements.
-	*/
-	protos: { },
-
 	/**
 	**	Indicates if the element is a root element, that is, the target element to attach child elements having data-ref attribute.
 	*/
@@ -50,7 +56,16 @@ const Element = module.exports =
 	/**
 	**	Events map.
 	*/
-	events: null,
+	events:
+	{
+		"click [data-action]": function(evt) {
+			this[evt.source.dataset.action] (evt.source.dataset, evt);
+		},
+
+		"keyup(13) input[data-enter]": function(evt) {
+			this[evt.source.dataset.enter] (evt.source.dataset, evt);
+		}
+	},
 
 	/**
 	**	Element constructor.
@@ -60,6 +75,8 @@ const Element = module.exports =
 		this._list_watch = [];
 		this._list_visible = [];
 		this._list_property = [];
+
+		this.style.display = 'block';
 
 		this.refs = { };
 
@@ -231,6 +248,50 @@ const Element = module.exports =
 	},
 
 	/*
+	**	Adds one or more CSS classes (separated by space) to the element.
+	**
+	**	>> void addClass (string classString);
+	*/
+	addClass: function (classString)
+	{
+		classString.split(' ').forEach(i => this.classList.add(i.trim()));
+		return this;
+	},
+
+	/*
+	**	Removes one or more CSS classes (separated by space) to the element.
+	**
+	**	>> void removeClass (string classString);
+	*/
+	removeClass: function (classString)
+	{
+		classString.split(' ').forEach(i => this.classList.remove(i.trim()));
+		return this;
+	},
+
+	/*
+	**	Adds one or more style properties.
+	**
+	**	>> void setStyle (string styleString);
+	*/
+	setStyle: function (styleString)
+	{
+		styleString.split(';').forEach(i => {
+			let j = (i = i.trim()).indexOf(':');
+			if (j == -1) return;
+
+			let name = i.substr(0, j).trim();
+			for (let k = name.indexOf('-'); k != -1; k = name.indexOf('-')) {
+				name = name.substr(0, k) + name.substr(k+1, 1).toUpperCase() + name.substr(k+2);
+			}
+
+			this.style[name] = i.substr(j+1).trim();
+		});
+
+		return this;
+	},
+
+	/*
 	**	Returns the width of the element.
 	**
 	**	>> float getWidth([elem]);
@@ -330,6 +391,53 @@ const Element = module.exports =
 	},
 
 	/**
+	**	Executes the underlying event handler given an event and a selector. Called internally by listen().
+	**
+	**	>> void _eventHandler (event evt, string selector);
+	*/
+	_eventHandler: function (evt, selector, handler)
+	{
+		if (evt.continuePropagation === false)
+			return;
+
+		evt.continuePropagation = true;
+		evt.source = evt.target;
+
+		if (selector && selector != "*")
+		{
+			let elems = this.querySelectorAll(selector);
+
+			while (evt.source !== this)
+			{
+				let i = Rin.indexOf (elems, evt.source);
+				if (i !== -1)
+				{
+					evt.continuePropagation = false;
+
+					handler.call (this, evt, evt.detail);
+					break;
+				}
+				else
+				{
+					evt.source = evt.source.parentElement;
+				}
+			}
+		}
+		else
+		{
+			evt.continuePropagation = false;
+
+			handler.call (this, evt, evt.detail);
+		}
+
+		if (evt.continuePropagation === false)
+		{
+			evt.preventDefault();
+			evt.stopPropagation();
+		}
+	},
+
+	/**
 	**	Listens for an event for elements matching the specified selector, returns an object with a single method remove() used
 	**	to remove the listener when it is no longer needed.
 	**
@@ -344,67 +452,66 @@ const Element = module.exports =
 			selector = null;
 		}
 
-		let callback = null;
+		let callback0 = null;
+		let callback1 = null;
 		let self = this;
 
-		this.addEventListener (eventName, callback = (evt) =>
+		this.addEventListener (eventName, callback0 = (evt) =>
 		{
-			let root = this.findRoot (evt.target);
-			if (root !== this) return;
-
 			if (evt.continuePropagation === false)
 				return;
 
-			evt.continuePropagation = true;
-
-			if (selector && selector != "*")
-			{
-				let elems = this.querySelectorAll(selector);
-
-				evt.source = evt.target;
-
-				while (evt.source !== this)
-				{
-					let i = Rin.indexOf (elems, evt.source);
-					if (i !== -1)
-					{
-						evt.continuePropagation = false;
-
-						handler.call (this, evt, evt.detail);
-						break;
-					}
-					else
-					{
-						evt.source = evt.source.parentElement;
-					}
-				}
-			}
-			else
-			{
-				evt.continuePropagation = false;
-
-				handler.call (this, evt, evt.detail);
+			if (!evt.firstCapture) {
+				evt.firstCapture = this;
+				evt.queue = [];
 			}
 
-			if (!evt.continuePropagation)
+			if (this.dataset.eventCatcher == 'true')
 			{
-				evt.preventDefault();
-				evt.stopPropagation();
+				evt.queue.push([this, selector, handler]);
+				return;
 			}
+
+			let root = this.findRoot (evt.target);
+			if (root !== this) return;
+
+			this._eventHandler(evt, selector, handler);
 		},
 		true);
 
-		return { removed: false, remove: function() { if (this.removed) return; this.removed = true; self.removeEventListener(eventName, callback, true); } };
+		this.addEventListener (eventName, callback1 = (evt) =>
+		{
+			if (evt.continuePropagation === false || !evt.firstCapture || !evt.queue.length || evt.eventPhase != Event.BUBBLING_PHASE || evt.firstCapture !== this)
+				return;
+
+			evt.continuePropagation = true;
+	
+			while (evt.queue.length)
+			{
+				let q = evt.queue.pop();
+				q[0]._eventHandler(evt, q[1], q[2]);
+			}
+
+			evt.continuePropagation = false;
+		},
+		false);
+
+		return { removed: false, remove: function() {
+			if (this.removed) return;
+			this.removed = true;
+			self.removeEventListener(eventName, callback0, true);
+			self.removeEventListener(eventName, callback1, false);
+		} };
 	},
 
 	/**
 	**	Dispatches a new event with the specified name and the given arguments.
 	**
-	**	>> void dispatch (string eventName, object args);
+	**	>> void dispatch (string eventName, object args, bool bubbles=true);
 	*/
-	dispatch: function (eventName, args)
+	dispatch: function (eventName, args=null, bubbles=true)
 	{
-		this.dispatchEvent (new CustomEvent (eventName, { bubbles: true, detail: args }));
+		this.dispatchEvent (new CustomEvent (eventName, { bubbles: bubbles, detail: args }));
 	},
 
 	/**
@@ -679,8 +786,8 @@ const Element = module.exports =
 	*/
 	onModelPropertyChanged: function (evt, args)
 	{
-		this.dispatch ("propertyChanged." + args.name, args);
-		this.dispatch ("propertyChanged", args);
+		this.dispatch ("propertyChanged." + args.name, args, false);
+		this.dispatch ("propertyChanged", args, false);
 	},
 
 	/**
@@ -694,8 +801,8 @@ const Element = module.exports =
 
 	/*
 	**	Registers a new custom element with the specified name, extra functionality can be added with one or more prototypes, by default
-	**	all elements also get the Rin.Element prototype. Note that the final prototypes of all registered elements are stored, and
-	**	if you want to inherit another element's prototype just provide its name (string) in the protos argument list.
+	**	all elements also get the Element prototype. Note that the final prototypes of all registered elements are stored, and if you want
+	**	to inherit another element's prototype just provide its name (string) in the protos argument list.
 	**
 	**	>> class register (string name, (object|string)... protos);
 	*/
@@ -773,6 +880,9 @@ const Element = module.exports =
 
 				this.connectReference(null, 2);
 				this.onConnected();
+
+				if (this.dataset.xref)
+					globalThis[this.dataset.xref] = this;
 			}
 
 			disconnectedCallback()
@@ -791,6 +901,9 @@ const Element = module.exports =
 				}
 
 				this.onDisconnected();
+
+				if (this.dataset.xref)
+					globalThis[this.dataset.xref] = null;
 			}
 		};
 
@@ -798,7 +911,7 @@ const Element = module.exports =
 
 		const proto = { };
 		const _super = { };
-		const events = { };
+		const events = Rin.clone(Element.events);
 
 		for (let i = 0; i < protos.length; i++)
 		{
@@ -808,7 +921,7 @@ const Element = module.exports =
 			{
 				const name = protos[i];
 
-				protos[i] = Element.protos[name];
+				protos[i] = elementPrototypes[name];
 				if (!protos[i]) continue;
 
 				_super[name] = { };
@@ -838,8 +951,27 @@ const Element = module.exports =
 		proto._super = _super;
 
 		customElements.define (name, newElement);
-		Element.protos[name] = proto;
+
+		elementPrototypes[name] = proto;
+		elementClasses[name] = newElement;
 
 		return newElement;
+	},
+
+	/*
+	**	Expands an already created custom element with the specified prototype(s).
+	**
+	**	>> class register (string name, (object|string)... protos);
+	*/
+	expand: function (name, ...protos)
+	{
+		if (!(name in elementPrototypes))
+			return;
+
+		for (let proto of protos)
+		{
+			Rin.override (elementClasses[name].prototype, proto);
+			Rin.override (elementPrototypes[name], proto);
+		}
 	}
 };

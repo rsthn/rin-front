@@ -1,11 +1,18 @@
 {
     "name": "@rsthn/rin-front",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "description": "Rin Front-End Library",
     "main": "main.js",
+    "exports": {
+        ".": {
+            "require": "./main.js",
+            "default": "./main.mjs"
+        }
+    },
     "scripts": {
         "test": "echo Ok",
-        "deploy": "node ./scripts/deploy.js"
+        "deploy": "node ./scripts/deploy.js",
+        "build": "parcel build ./main.js -o rin-front.js --global front"
     },
     "repository": {
         "type": "git",
@@ -17,6 +24,9 @@
         "url": "https://github.com/rsthn/rin-front/issues"
     },
     "homepage": "https://github.com/rsthn/rin-front#readme",
+    "browserslist": [
+        "since 2019-01"
+    ],
     "files": [
         "elems/",
         "*.js",
