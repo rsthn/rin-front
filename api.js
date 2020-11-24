@@ -213,7 +213,10 @@ module.exports =
 		let options =
 		{
 			credentials: 'include',
-			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9',
+			},
 			method: type,
 			body: null,
 			multipart: false

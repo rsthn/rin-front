@@ -58,11 +58,11 @@ const Element = module.exports =
 	*/
 	events:
 	{
-		"click [data-action]": function(evt) {
+		'click [data-action]': function(evt) {
 			this[evt.source.dataset.action] (evt.source.dataset, evt);
 		},
 
-		"keyup(13) input[data-enter]": function(evt) {
+		'keyup(13) input[data-enter]': function(evt) {
 			this[evt.source.dataset.enter] (evt.source.dataset, evt);
 		}
 	},
@@ -218,18 +218,18 @@ const Element = module.exports =
 
 		if (this.model != null)
 		{
-			this.model.removeEventListener ("modelChanged", this.onModelPreChanged, this);
-			this.model.removeEventListener ("propertyChanging", this.onModelPropertyChanging, this);
-			this.model.removeEventListener ("propertyChanged", this.onModelPropertyPreChanged, this);
-			this.model.removeEventListener ("propertyRemoved", this.onModelPropertyRemoved, this);
+			this.model.removeEventListener ('modelChanged', this.onModelPreChanged, this);
+			this.model.removeEventListener ('propertyChanging', this.onModelPropertyChanging, this);
+			this.model.removeEventListener ('propertyChanged', this.onModelPropertyPreChanged, this);
+			this.model.removeEventListener ('propertyRemoved', this.onModelPropertyRemoved, this);
 		}
 
 		this.model = model;
 
-		this.model.addEventListener ("modelChanged", this.onModelPreChanged, this);
-		this.model.addEventListener ("propertyChanging", this.onModelPropertyChanging, this);
-		this.model.addEventListener ("propertyChanged", this.onModelPropertyPreChanged, this);
-		this.model.addEventListener ("propertyRemoved", this.onModelPropertyRemoved, this);
+		this.model.addEventListener ('modelChanged', this.onModelPreChanged, this);
+		this.model.addEventListener ('propertyChanging', this.onModelPropertyChanging, this);
+		this.model.addEventListener ('propertyChanged', this.onModelPropertyPreChanged, this);
+		this.model.addEventListener ('propertyRemoved', this.onModelPropertyRemoved, this);
 
 		if (update !== false)
 			this.model.update();
@@ -316,9 +316,9 @@ const Element = module.exports =
 	**
 	**		"click .button": "doSomething",		(Delegated Event)
 	**		"click .button": function() { },	(Delegated Event)
-	**		"myevt @this": "...",				(Element Event)
+	**		"myevt @this": "...",				(Self Event)
 	**		"myevt": "...",						(Element Event)
-	**		"myevt @objName": "...",			(Element Event)
+	**		"myevt @objName": "...",			(EventDispatcher Event)
 	**		"#propname": "...",					(Property Changed Event)
 	**		"keyup(10) .input": "..."			(Delegated Event with Parameters)
 	**
@@ -335,35 +335,34 @@ const Element = module.exports =
 
 			hdl = hdl.bind(this);
 
-			var i = evtstr.indexOf(" ");
+			var i = evtstr.indexOf(' ');
 
 			var name = i == -1 ? evtstr : evtstr.substr(0, i);
-			var selector = i == -1 ? "" : evtstr.substr(i + 1);
+			var selector = i == -1 ? '' : evtstr.substr(i + 1);
 
 			let args = null;
 
-			var j = name.indexOf("(");
+			var j = name.indexOf('(');
 			if (j != -1)
 			{
-				args = name.substr(j+1, name.length-j-2).split(",");
+				args = name.substr(j+1, name.length-j-2).split(',');
 				name = name.substr(0, j);
 			}
 
-			if (selector.substr(0,1) == "@")
+			if (selector.substr(0,1) == '@')
 			{
-				if (selector.substr(1) == "this")
+				if (selector.substr(1) != 'this')
 				{
-					this.listen(name, hdl);
-				}
-				else
 					this[selector.substr(1)].addEventListener(name, hdl);
+					continue;
+				}
 
-				continue;
+				selector = this;
 			}
 
-			if (name.substr(0, 1) == "#")
+			if (name.substr(0, 1) == '#')
 			{
-				this.listen("propertyChanged."+name.substr(1), hdl);
+				this.listen('propertyChanged.'+name.substr(1), this, hdl);
 				continue;
 			}
 
@@ -371,7 +370,7 @@ const Element = module.exports =
 			{
 				switch (name)
 				{
-					case "keyup": case "keydown":
+					case 'keyup': case 'keydown':
 						this.listen (name, selector, function (evt)
 						{
 							if (Rin.indexOf(args, evt.keyCode.toString()) != -1)
@@ -393,7 +392,7 @@ const Element = module.exports =
 	/**
 	**	Executes the underlying event handler given an event and a selector. Called internally by listen().
 	**
-	**	>> void _eventHandler (event evt, string selector);
+	**	>> void _eventHandler (event evt, string selector, function handler);
 	*/
 	_eventHandler: function (evt, selector, handler)
 	{
@@ -403,7 +402,15 @@ const Element = module.exports =
 		evt.continuePropagation = true;
 		evt.source = evt.target;
 
-		if (selector && selector != "*")
+		if (selector && selector instanceof HTMLElement)
+		{
+			if (evt.source === selector)
+			{
+				evt.continuePropagation = false;
+				handler.call (this, evt, evt.detail);
+			}
+		}
+		else if (selector && selector != '*')
 		{
 			let elems = this.querySelectorAll(selector);
 
@@ -446,7 +453,7 @@ const Element = module.exports =
 	*/
 	listen: function (eventName, selector, handler)
 	{
-		if (Rin.typeOf(selector) == "function")
+		if (Rin.typeOf(selector) == 'function')
 		{
 			handler = selector;
 			selector = null;
@@ -472,36 +479,43 @@ const Element = module.exports =
 				return;
 			}
 
-			let root = this.findRoot (evt.target);
-			if (root !== this) return;
+			//VIOLET: Possibly need a configuration option for this behavior.
+			//let root = this.findRoot (evt.target);
+			//if (root !== this) return;
 
-			this._eventHandler(evt, selector, handler);
+			//this._eventHandler(evt, selector, handler);
 		},
 		true);
 
 		this.addEventListener (eventName, callback1 = (evt) =>
 		{
-			if (evt.continuePropagation === false || !evt.firstCapture || !evt.queue.length || evt.eventPhase != Event.BUBBLING_PHASE || evt.firstCapture !== this)
+			if (evt.continuePropagation === false)
 				return;
 
-			evt.continuePropagation = true;
-	
-			while (evt.queue.length)
-			{
-				let q = evt.queue.pop();
-				q[0]._eventHandler(evt, q[1], q[2]);
-			}
+			this._eventHandler(evt, selector, handler);
 
-			evt.continuePropagation = false;
+			if (evt.firstCapture === this && evt.continuePropagation !== false)
+			{
+				while (evt.queue.length)
+				{
+					let q = evt.queue.pop();
+					q[0]._eventHandler(evt, q[1], q[2]);
+				}
+
+				evt.continuePropagation = false;
+			}
 		},
 		false);
 
-		return { removed: false, remove: function() {
-			if (this.removed) return;
-			this.removed = true;
-			self.removeEventListener(eventName, callback0, true);
-			self.removeEventListener(eventName, callback1, false);
-		} };
+		return {
+			removed: false,
+			remove: function() {
+				if (this.removed) return;
+				this.removed = true;
+				self.removeEventListener(eventName, callback0, true);
+				self.removeEventListener(eventName, callback1, false);
+			}
+		};
 	},
 
 	/**
@@ -512,6 +526,16 @@ const Element = module.exports =
 	dispatch: function (eventName, args=null, bubbles=true)
 	{
 		this.dispatchEvent (new CustomEvent (eventName, { bubbles: bubbles, detail: args }));
+	},
+
+	/**
+	**	Dispatches a new event on the specified element with the given name and arguments.
+	**
+	**	>> void dispatchOn (HTMLElement elem, string eventName, object args, bool bubbles=true);
+	*/
+	dispatchOn: function (elem, eventName, args=null, bubbles=true)
+	{
+		elem.dispatchEvent (new CustomEvent (eventName, { bubbles: bubbles, detail: args }));
 	},
 
 	/**
@@ -548,7 +572,7 @@ const Element = module.exports =
 		let _list_visible_length = this._list_visible.length;
 		let _list_property_length = this._list_property.length;
 
-		list = this.querySelectorAll("[data-watch]");
+		list = this.querySelectorAll('[data-watch]');
 		for (let i = 0; i < list.length; i++)
 		{
 			for (let j of list[i].querySelectorAll('.pseudo'))
@@ -562,7 +586,7 @@ const Element = module.exports =
 			this._list_watch.push(list[i]);
 		}
 
-		list = this.querySelectorAll("[data-visible]");
+		list = this.querySelectorAll('[data-visible]');
 		for (let i = 0; i < list.length; i++)
 		{
 			list[i]._visible = Template.compile(list[i].dataset.visible);
@@ -571,7 +595,7 @@ const Element = module.exports =
 			this._list_visible.push(list[i]);
 		}
 
-		list = this.querySelectorAll("[data-property]");
+		list = this.querySelectorAll('[data-property]');
 		for (let i = 0; i < list.length; i++)
 		{
 			list[i].onchange = list[i].onblur = function()
@@ -786,8 +810,8 @@ const Element = module.exports =
 	*/
 	onModelPropertyChanged: function (evt, args)
 	{
-		this.dispatch ("propertyChanged." + args.name, args, false);
-		this.dispatch ("propertyChanged", args, false);
+		this.dispatch ('propertyChanged.' + args.name, args, false);
+		this.dispatch ('propertyChanged', args, false);
 	},
 
 	/**
@@ -797,6 +821,32 @@ const Element = module.exports =
 	*/
 	onModelPropertyRemoved: function (evt, args)
 	{
+	},
+
+	/*
+	**	Runs the following preparation procedures on the specified prototype:
+	**		- All functions named 'event <event-name> [event-selector]' will be moved to the 'events' map.
+	**
+	**	>> void preparePrototype (object proto);
+	*/
+	preparePrototype: function (proto)
+	{
+		if (proto.__prototypePrepared === true)
+			return;
+
+		proto.__prototypePrepared = true;
+
+		if (!('events' in proto))
+			proto.events = { };
+
+		for (let i in proto)
+		{
+			if (i.startsWith('event '))
+			{
+				proto.events[i.substr(6)] = proto[i];
+				delete proto[i];
+			}
+		}
 	},
 
 	/*
@@ -835,7 +885,7 @@ const Element = module.exports =
 
 				while (elem != null)
 				{
-					if ("isRoot" in elem && elem.isRoot)
+					if ('isRoot' in elem && elem.isRoot)
 						return elem;
 
 					elem = elem.parentElement;
@@ -893,8 +943,8 @@ const Element = module.exports =
 
 					delete this.dataset.pending;
 
-					root[this.dataset.ref] = null;
-					root.refs[this.dataset.ref] = null;
+					this.root[this.dataset.ref] = null;
+					this.root.refs[this.dataset.ref] = null;
 
 					this.dataset.linked = 'false';
 					this.root = null;
@@ -934,6 +984,8 @@ const Element = module.exports =
 					_super[name][f] = protos[i][f];
 				}
 			}
+			else
+				Element.preparePrototype(protos[i]);
 
 			if ('_super' in protos[i])
 				Rin.override (_super, protos[i]._super);
@@ -949,6 +1001,7 @@ const Element = module.exports =
 		newElement.prototype.events = events;
 
 		proto._super = _super;
+		proto.events = events;
 
 		customElements.define (name, newElement);
 
@@ -961,17 +1014,37 @@ const Element = module.exports =
 	/*
 	**	Expands an already created custom element with the specified prototype(s).
 	**
-	**	>> class register (string name, (object|string)... protos);
+	**	>> void expand (string elementName, object... protos);
 	*/
 	expand: function (name, ...protos)
 	{
 		if (!(name in elementPrototypes))
 			return;
 
+		const self = elementPrototypes[name];
+		const elem = elementClasses[name];
+
+		const _super = self._super;
+		const events = self.events;
+
 		for (let proto of protos)
 		{
-			Rin.override (elementClasses[name].prototype, proto);
-			Rin.override (elementPrototypes[name], proto);
+			Element.preparePrototype(proto);
+
+			if ('_super' in proto)
+				Rin.override (_super, proto._super);
+
+			if ('events' in proto)
+				Rin.override (events, proto.events);
+
+			Rin.override (elem.prototype, proto);
+			Rin.override (self, proto);
 		}
+
+		elem.prototype._super = _super;
+		elem.prototype.events = events;
+
+		self._super = _super;
+		self.events = _super;
 	}
 };

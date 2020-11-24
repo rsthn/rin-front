@@ -15,7 +15,7 @@
 */
 
 /*
-	<r-form data-action="api-function-name" [data-strict="true|false"]>
+	<r-form data-form-action="api-function-name" [data-strict="true|false"]>
 		<input type="text" data-field="username"/>
 	</r-form>
 
@@ -102,7 +102,7 @@ Element.register ('r-form',
 	/*
 	**	Transforms an string returned by the server to a local representation.
 	*/
-	filterString: function (str)
+	filterString: function (str, r)
 	{
 		return str;
 	},
@@ -209,6 +209,8 @@ Element.register ('r-form',
 			this.model.set (f.dataset.field, this._getField(f), true);
 		else
 			this.model.set (f.dataset.field, this._getField(f));
+
+		evt.continuePropagation = true;
 	},
 
 	_onSuccess: function(r)
@@ -222,7 +224,7 @@ Element.register ('r-form',
 
 		if (r.message && (tmp = this.querySelector('.message.success')) != null)
 		{
-			tmp.innerHTML = this.filterString(r.message);
+			tmp.innerHTML = this.filterString(r.message, r);
 			tmp.classList.remove('hidden');
 		}
 	},
@@ -242,7 +244,7 @@ Element.register ('r-form',
 			{
 				tmp = document.createElement('span');
 				tmp.classList.add('field-error');
-				tmp.innerHTML = this.filterString(r.fields[i]);
+				tmp.innerHTML = this.filterString(r.fields[i], r);
 
 				let f = this.querySelector('[data-field-container="'+i+'"]');
 				if (!f) f = this.querySelector('[data-field="'+i+'"]');
@@ -256,7 +258,7 @@ Element.register ('r-form',
 
 			if (r.error && (tmp = this.querySelector('.message.error')) != null)
 			{
-				tmp.innerHTML = this.filterString(r.error);
+				tmp.innerHTML = this.filterString(r.error, r);
 				tmp.classList.remove('hidden');
 			}
 		}
@@ -264,7 +266,7 @@ Element.register ('r-form',
 		{
 			if ((tmp = this.querySelector('.message.error')) != null)
 			{
-				tmp.innerHTML = this.filterString(r.error) || ('Error: ' + r.response);
+				tmp.innerHTML = this.filterString(r.error, r) || ('Error: ' + r.response);
 				tmp.classList.remove('hidden');
 			}
 		}
@@ -291,17 +293,13 @@ Element.register ('r-form',
 
 	submit: function ()
 	{
+		if (this.classList.contains('busy'))
+			return;
+
 		let data = this.model.get(this.dataset.strict == 'false' ? false : true);
 
-		let f = this.action || this.dataset.action;
-		if (!f)
-		{
-			let tmp = this.querySelector('form');
-			if (!tmp) return;
-
-			f = tmp.dataset.action;
-			if (!f) return;
-		}
+		let f = this.dataset.formAction;
+		if (!f) return;
 
 		this._clearMarkers();
 

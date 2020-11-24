@@ -1,3 +1,4 @@
 --*
 .svn
+.cache
 node_modules

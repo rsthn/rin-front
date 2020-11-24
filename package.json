@@ -1,6 +1,6 @@
 {
     "name": "@rsthn/rin-front",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "description": "Rin Front-End Library",
     "main": "main.js",
     "exports": {
@@ -34,8 +34,8 @@
         "README.md"
     ],
     "dependencies": {
-        "@rsthn/rin": "^2.0.9",
-        "base-64": "^0.1.0",
-        "node-fetch": "^2.6.0"
+        "@rsthn/rin": "^2.0.19",
+        "base-64": "^1.0.0",
+        "node-fetch": "^2.6.1"
     }
 }
