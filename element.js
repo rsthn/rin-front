@@ -662,8 +662,8 @@ const Element = module.exports =
 	},
 
 	/**
-	**	Collects all watchers elements (data-watch, data-visible, data-property), that depend on the model, should be invoked when the
-	**	structure of the element changed (added/removed children). This is automatically called when the setInnerHTML method is called.
+	**	Collects all watchers (data-watch, data-visible, data-property), that depend on the model, should be invoked when the structure
+	**	of the element changed (added/removed children). This is automatically called when the setInnerHTML method is called.
 	**
 	**	Note that for 3rd party libs that add children to this element (which could probably have a watcher) will possibly result in
 	**	duplication of the added elements when compiling the innerHTML template. To prevent this add the 'pseudo' CSS class to any
@@ -696,16 +696,16 @@ const Element = module.exports =
 			this._list_watch.push(list[i]);
 		}
 
-		if ('watch' in this.dataset)
+		if ('selfWatch' in this.dataset)
 		{
 			for (let j of this.querySelectorAll('.pseudo'))
 				j.remove();
 
 			this._template = Template.compile(this.innerHTML);
-			this._watch = new RegExp(this.dataset.watch);
+			this._watch = new RegExp(this.dataset.selfWatch);
 			this.innerHTML = '';
 
-			this.removeAttribute('data-watch');
+			this.removeAttribute('data-self-watch');
 			this._list_watch.push(this);
 		}
 
@@ -717,6 +717,14 @@ const Element = module.exports =
 
 			list[i].removeAttribute('data-visible');
 			this._list_visible.push(list[i]);
+		}
+
+		if ('selfVisible' in this.dataset)
+		{
+			this._visible = Template.compile(this.dataset.selfVisible);
+
+			this.removeAttribute('data-self-visible');
+			this._list_visible.push(this);
 		}
 
 		/* *** */
@@ -753,6 +761,40 @@ const Element = module.exports =
 
 			list[i].removeAttribute('data-property');
 			this._list_property.push(list[i]);
+		}
+
+		if ('selfProperty' in this.dataset)
+		{
+			this.onchange = this.onblur = function()
+			{
+				switch (this.type)
+				{
+					case 'checkbox':
+						self.getModel().set(this.name, this.checked ? '1' : '0');
+						break;
+
+					case 'field':
+						self.getModel().set(this.name, this.getValue());
+						break;
+
+					default:
+						self.getModel().set(this.name, this.value);
+						break;
+				}
+			};
+
+			if (this.tagName == 'SELECT')
+			{
+				this.onmouseup = function()
+				{
+					self.getModel().set(this.name, this.value);
+				};
+			}
+
+			this.name = this.dataset.selfProperty;
+
+			this.removeAttribute('data-self-property');
+			this._list_property.push(this);
 		}
 
 		/* *** */
@@ -1193,4 +1235,5 @@ const Element = module.exports =
 	}
 };
 
-Element.register('r-elem');
+Element.register('r-elem', {
+});
