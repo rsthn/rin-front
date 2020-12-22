@@ -34,9 +34,19 @@ const elementClasses = { };
 const Element = module.exports = 
 {
 	/**
+	**	Internal element ID. Added as namespace to model events. Ensures that certain model events are run locally only, not affecting other event handlers.
+	*/
+	eid: null,
+
+	/**
 	**	Indicates if the element is a root element, that is, the target element to attach child elements having data-ref attribute.
 	*/
 	isRoot: true,
+
+	/**
+	**	Indicates if the element is ready (all children have been initialized).
+	*/
+	isReady: false,
 
 	/**
 	**	All children elements having data-ref are added to this map (and to the element itself).
@@ -59,11 +69,17 @@ const Element = module.exports =
 	events:
 	{
 		'click [data-action]': function(evt) {
-			this[evt.source.dataset.action] (evt.source.dataset, evt);
+			if (evt.source.dataset.action in this)
+				this[evt.source.dataset.action] (evt.source.dataset, evt);
+			else
+				evt.continuePropagation = true;
 		},
 
 		'keyup(13) input[data-enter]': function(evt) {
-			this[evt.source.dataset.enter] (evt.source.dataset, evt);
+			if (evt.source.dataset.enter in this)
+				this[evt.source.dataset.enter] (evt.source.dataset, evt);
+			else
+				evt.continuePropagation = true;
 		}
 	},
 
@@ -79,6 +95,7 @@ const Element = module.exports =
 		this.style.display = 'block';
 
 		this.refs = { };
+		this.eid = Math.random().toString().substr(2);
 
 		if (this.model != null)
 		{
@@ -87,7 +104,7 @@ const Element = module.exports =
 			this.setModel (tmp);
 		}
 
-		this.isReady = false;
+		this._mutationObserver = true;
 		this.init();
 
 		Object.keys(this._super).reverse().forEach(i =>
@@ -104,6 +121,17 @@ const Element = module.exports =
 			this.ready();
 			this.isReady = true;
 
+			if ('model' in this.dataset)
+			{
+				let tmp = this.dataset.model.split('.');
+				let ref = global;
+
+				while (ref != null && tmp.length != 0)
+					ref = ref[tmp.shift()];
+
+				if (ref) this.setModel(ref);
+			}
+
 			Object.keys(this._super).reverse().forEach(i =>
 			{
 				if ('ready' in this._super[i])
@@ -112,18 +140,19 @@ const Element = module.exports =
 
 			this.collectWatchers();
 
-			if (this.root && this.root._mutationHandler)
-				this.root._mutationHandler();
+			let root = this.findCustomParent(this);
+			if (root && root._mutationHandler)
+				root._mutationHandler();
 		};
 
 		let timeout = null;
 
 		this._mutationHandler = () =>
 		{
-			if (this.children.length == 0)
+			if (this.childNodes.length == 0)
 				return;
 
-			this.querySelectorAll('[data-pending=true]').forEach(i =>
+			this.querySelectorAll('[data-_pending=true]').forEach(i =>
 			{
 				let root = this.findRoot(i.parentElement);
 				if (root !== this) return;
@@ -131,10 +160,17 @@ const Element = module.exports =
 				i.connectReference(this);
 			});
 
-			for (let i in this.refs)
+			let is_ready = true;
+
+			this.querySelectorAll('[data-_custom]').forEach(i =>
 			{
-				if (!this.refs[i].isReady) return;
-			}
+				let root = this.findCustomParent(i);
+				if (root !== this) return;
+
+				if (!i.isReady) is_ready = false;
+			});
+
+			if (!is_ready) return;
 
 			if (timeout) clearTimeout(timeout);
 
@@ -142,19 +178,26 @@ const Element = module.exports =
 			{
 				timeout = null;
 
-				for (let i in this.refs)
+				let is_ready = true;
+
+				this.querySelectorAll('[data-_custom]').forEach(i =>
 				{
-					if (!this.refs[i].isReady) return;
-				}
+					let root = this.findCustomParent(i);
+					if (root !== this) return;
+	
+					if (!i.isReady) is_ready = false;
+				});
+	
+				if (!is_ready) return;
 
 				for (let elem of this.querySelectorAll('[data-ref]'))
 				{
-					if (elem.dataset.linked != 'true')
+					if (elem.dataset._linked != 'true')
 					{
 						this[elem.dataset.ref] = elem;
 						this.refs[elem.dataset.ref] = elem;
 
-						elem.dataset.linked = 'true';
+						elem.dataset._linked = 'true';
 						elem.root = this;
 
 						this.onRefAdded (elem.dataset.ref);
@@ -218,21 +261,21 @@ const Element = module.exports =
 
 		if (this.model != null)
 		{
-			this.model.removeEventListener ('modelChanged', this.onModelPreChanged, this);
-			this.model.removeEventListener ('propertyChanging', this.onModelPropertyChanging, this);
-			this.model.removeEventListener ('propertyChanged', this.onModelPropertyPreChanged, this);
-			this.model.removeEventListener ('propertyRemoved', this.onModelPropertyRemoved, this);
+			this.model.removeEventListener (this.eid+':modelChanged', this.onModelPreChanged, this);
+			this.model.removeEventListener (this.eid+':propertyChanging', this.onModelPropertyChanging, this);
+			this.model.removeEventListener (this.eid+':propertyChanged', this.onModelPropertyPreChanged, this);
+			this.model.removeEventListener (this.eid+':propertyRemoved', this.onModelPropertyRemoved, this);
 		}
 
 		this.model = model;
 
-		this.model.addEventListener ('modelChanged', this.onModelPreChanged, this);
-		this.model.addEventListener ('propertyChanging', this.onModelPropertyChanging, this);
-		this.model.addEventListener ('propertyChanged', this.onModelPropertyPreChanged, this);
-		this.model.addEventListener ('propertyRemoved', this.onModelPropertyRemoved, this);
+		this.model.addEventListener (this.eid+':modelChanged', this.onModelPreChanged, this);
+		this.model.addEventListener (this.eid+':propertyChanging', this.onModelPropertyChanging, this);
+		this.model.addEventListener (this.eid+':propertyChanged', this.onModelPropertyPreChanged, this);
+		this.model.addEventListener (this.eid+':propertyRemoved', this.onModelPropertyRemoved, this);
 
 		if (update !== false)
-			this.model.update();
+			this.model.setNamespace(this.eid).update(true).setNamespace(null);
 
 		return this;
 	},
@@ -276,6 +319,8 @@ const Element = module.exports =
 	*/
 	setStyle: function (styleString)
 	{
+		if (!styleString) return this;
+
 		styleString.split(';').forEach(i => {
 			let j = (i = i.trim()).indexOf(':');
 			if (j == -1) return;
@@ -416,11 +461,10 @@ const Element = module.exports =
 
 			while (evt.source !== this)
 			{
-				let i = Rin.indexOf (elems, evt.source);
+				let i = Rin.indexOf (elems, evt.source, true);
 				if (i !== -1)
 				{
 					evt.continuePropagation = false;
-
 					handler.call (this, evt, evt.detail);
 					break;
 				}
@@ -433,7 +477,6 @@ const Element = module.exports =
 		else
 		{
 			evt.continuePropagation = false;
-
 			handler.call (this, evt, evt.detail);
 		}
 
@@ -453,10 +496,18 @@ const Element = module.exports =
 	*/
 	listen: function (eventName, selector, handler)
 	{
+		let eventCatcher = false;
+
 		if (Rin.typeOf(selector) == 'function')
 		{
 			handler = selector;
 			selector = null;
+		}
+
+		if (eventName[eventName.length-1] == '!')
+		{
+			eventName = eventName.substr(0, eventName.length-1);
+			eventCatcher = true;
 		}
 
 		let callback0 = null;
@@ -468,12 +519,17 @@ const Element = module.exports =
 			if (evt.continuePropagation === false)
 				return;
 
-			if (!evt.firstCapture) {
+			if (!evt.firstCapture)
+			{
 				evt.firstCapture = this;
+				evt.firstCaptureCount = 0;
 				evt.queue = [];
 			}
 
-			if (this.dataset.eventCatcher == 'true')
+			if (evt.firstCapture === this)
+				evt.firstCaptureCount++;
+
+			if (eventCatcher == true)
 			{
 				evt.queue.push([this, selector, handler]);
 				return;
@@ -492,17 +548,21 @@ const Element = module.exports =
 			if (evt.continuePropagation === false)
 				return;
 
-			this._eventHandler(evt, selector, handler);
+			if (eventCatcher != true)
+				this._eventHandler(evt, selector, handler);
 
 			if (evt.firstCapture === this && evt.continuePropagation !== false)
 			{
-				while (evt.queue.length)
+				if (--evt.firstCaptureCount == 0)
 				{
-					let q = evt.queue.pop();
-					q[0]._eventHandler(evt, q[1], q[2]);
-				}
+					while (evt.queue.length)
+					{
+						let q = evt.queue.pop();
+						q[0]._eventHandler(evt, q[1], q[2]);
+					}
 
-				evt.continuePropagation = false;
+					evt.continuePropagation = false;
+				}
 			}
 		},
 		false);
@@ -545,20 +605,69 @@ const Element = module.exports =
 	*/
 	setInnerHTML: function (value)
 	{
-		if (this._mutationObserver != null)
+		if (this._mutationObserver == null)
 		{
-			this.innerHTML = value;
-			return;
+			let timeout = null;
+
+			this._mutationHandler = () =>
+			{
+				if (this.childNodes.length == 0)
+					return;
+
+				let is_ready = true;
+
+				this.querySelectorAll('[data-_custom]').forEach(i =>
+				{
+					let root = this.findCustomParent(i);
+					if (root !== this) return;
+
+					if (!i.isReady) is_ready = false;
+				});
+
+				if (!is_ready) return;
+
+				if (timeout) clearTimeout(timeout);
+
+				timeout = setTimeout(() =>
+				{
+					timeout = null;
+
+					let is_ready = true;
+
+					this.querySelectorAll('[data-_custom]').forEach(i =>
+					{
+						let root = this.findCustomParent(i);
+						if (root !== this) return;
+
+						if (!i.isReady) is_ready = false;
+					});
+
+					if (!is_ready) return;
+
+					this._mutationHandler = null;
+
+					this._mutationObserver.disconnect();
+					this._mutationObserver = null;
+
+					this.collectWatchers();
+				},
+				50);
+			};
+
+			this._mutationObserver = new MutationObserver (this._mutationHandler);
+			this._mutationObserver.observe(this, { attributes: false, childList: true, subtree: false });
 		}
 
 		this.innerHTML = value;
-		this.collectWatchers();
 	},
 
 	/**
-	**	Collects all watchers elements (data-watch, data-visible, data-property), that depend on the model, should be invoked
-	**	when the structure of the element changed (added/removed children). This is automatically called when the setInnerHTML
-	**	method is called.
+	**	Collects all watchers elements (data-watch, data-visible, data-property), that depend on the model, should be invoked when the
+	**	structure of the element changed (added/removed children). This is automatically called when the setInnerHTML method is called.
+	**
+	**	Note that for 3rd party libs that add children to this element (which could probably have a watcher) will possibly result in
+	**	duplication of the added elements when compiling the innerHTML template. To prevent this add the 'pseudo' CSS class to any
+	**	element that should not be added to the HTML template.
 	**
 	**	>> void collectWatchers ();
 	*/
@@ -572,6 +681,7 @@ const Element = module.exports =
 		let _list_visible_length = this._list_visible.length;
 		let _list_property_length = this._list_property.length;
 
+		/* *** */
 		list = this.querySelectorAll('[data-watch]');
 		for (let i = 0; i < list.length; i++)
 		{
@@ -586,6 +696,20 @@ const Element = module.exports =
 			this._list_watch.push(list[i]);
 		}
 
+		if ('watch' in this.dataset)
+		{
+			for (let j of this.querySelectorAll('.pseudo'))
+				j.remove();
+
+			this._template = Template.compile(this.innerHTML);
+			this._watch = new RegExp(this.dataset.watch);
+			this.innerHTML = '';
+
+			this.removeAttribute('data-watch');
+			this._list_watch.push(this);
+		}
+
+		/* *** */
 		list = this.querySelectorAll('[data-visible]');
 		for (let i = 0; i < list.length; i++)
 		{
@@ -595,6 +719,7 @@ const Element = module.exports =
 			this._list_visible.push(list[i]);
 		}
 
+		/* *** */
 		list = this.querySelectorAll('[data-property]');
 		for (let i = 0; i < list.length; i++)
 		{
@@ -630,6 +755,7 @@ const Element = module.exports =
 			this._list_property.push(list[i]);
 		}
 
+		/* *** */
 		this._list_watch = this._list_watch.filter(i => i.parentElement != null);
 		if (_list_watch_length != this._list_watch.length) modified = true;
 
@@ -640,7 +766,7 @@ const Element = module.exports =
 		if (_list_property_length != this._list_property.length) modified = true;
 
 		if (this.model != null && modified)
-			this.model.update();
+			this.model.setNamespace(this.eid).update(true).setNamespace(null);
 	},
 
 	/**
@@ -879,13 +1005,28 @@ const Element = module.exports =
 				this.onCreated();
 			}
 
-			findRoot(srcElement)
+			findRoot (srcElement)
 			{
 				let elem = srcElement ? srcElement : this.parentElement;
 
 				while (elem != null)
 				{
 					if ('isRoot' in elem && elem.isRoot)
+						return elem;
+
+					elem = elem.parentElement;
+				}
+
+				return null;
+			}
+
+			findCustomParent (srcElement)
+			{
+				let elem = srcElement ? srcElement.parentElement : this.parentElement;
+
+				while (elem != null)
+				{
+					if (elem.dataset._custom == 'true')
 						return elem;
 
 					elem = elem.parentElement;
@@ -906,12 +1047,13 @@ const Element = module.exports =
 						root[this.dataset.ref] = this;
 						root.refs[this.dataset.ref] = this;
 
-						delete this.dataset.pending;
-						this.dataset.linked = 'true';
+						delete this.dataset._pending;
+
+						this.dataset._linked = 'true';
 						this.root = root;
 					}
 					else
-						this.dataset.pending = true;
+						this.dataset._pending = 'true';
 				}
 
 				if (this.root && (flags & 2) == 2)
@@ -925,6 +1067,8 @@ const Element = module.exports =
 				if (this.invokeConstructor)
 				{
 					this.invokeConstructor = false;
+					this.dataset._custom = 'true';
+
 					this.__ctor();
 				}
 
@@ -941,19 +1085,19 @@ const Element = module.exports =
 				{
 					this.root.onRefRemoved (this.dataset.ref);
 
-					delete this.dataset.pending;
+					delete this.dataset._pending;
 
-					this.root[this.dataset.ref] = null;
-					this.root.refs[this.dataset.ref] = null;
+					delete this.root[this.dataset.ref];
+					delete this.root.refs[this.dataset.ref];
 
-					this.dataset.linked = 'false';
+					this.dataset._linked = 'false';
 					this.root = null;
 				}
 
 				this.onDisconnected();
 
 				if (this.dataset.xref)
-					globalThis[this.dataset.xref] = null;
+					delete globalThis[this.dataset.xref];
 			}
 		};
 
@@ -1048,3 +1192,5 @@ const Element = module.exports =
 		self.events = _super;
 	}
 };
+
+Element.register('r-elem');
