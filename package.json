@@ -1,6 +1,6 @@
 {
     "name": "@rsthn/rin-front",
-    "version": "1.0.15",
+    "version": "1.0.17",
     "description": "Rin Front-End Library",
     "main": "main.js",
     "exports": {
@@ -11,6 +11,7 @@
     },
     "scripts": {
         "test": "echo Ok",
+        "requirements": "yarn global add --ignore-optional parcel-bundler",
         "deploy": "node ./scripts/deploy.js",
         "build": "parcel build ./main.js -o rin-front.js --global front"
     },

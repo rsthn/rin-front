@@ -689,7 +689,7 @@ const Element = module.exports =
 				j.remove();
 
 			list[i]._template = Template.compile(list[i].innerHTML);
-			list[i]._watch = new RegExp(list[i].dataset.watch);
+			list[i]._watch = new RegExp("^(" + list[i].dataset.watch + ")$");
 			list[i].innerHTML = '';
 
 			list[i].removeAttribute('data-watch');
@@ -702,7 +702,7 @@ const Element = module.exports =
 				j.remove();
 
 			this._template = Template.compile(this.innerHTML);
-			this._watch = new RegExp(this.dataset.selfWatch);
+			this._watch = new RegExp("^(" + this.dataset.selfWatch + ")$");
 			this.innerHTML = '';
 
 			this.removeAttribute('data-self-watch');
