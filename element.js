@@ -735,6 +735,10 @@ const Element = module.exports =
 			{
 				switch (this.type)
 				{
+					case 'radio':
+						if (this.checked) self.getModel().set(this.name, this.value);
+						break;
+
 					case 'checkbox':
 						self.getModel().set(this.name, this.checked ? '1' : '0');
 						break;
@@ -769,6 +773,10 @@ const Element = module.exports =
 			{
 				switch (this.type)
 				{
+					case 'radio':
+						if (this.checked) self.getModel().set(this.name, this.value);
+						break;
+
 					case 'checkbox':
 						self.getModel().set(this.name, this.checked ? '1' : '0');
 						break;

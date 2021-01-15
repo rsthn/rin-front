@@ -63,16 +63,23 @@ Element.register ('r-form',
 	ready: function()
 	{
 		let def = { };
+		let names = { };
 
 		this.querySelectorAll("[data-field]").forEach((i) =>
 		{
 			i.name = i.dataset.field;
+			names[i.name] = i.type;
 
 			let val = i.dataset.default;
 			if (val == undefined)
 			{
 				switch (i.type)
 				{
+					case 'radio':
+						if (!i.checked) return;
+						val = i.value;
+						break;
+
 					case 'checkbox':
 						val = i.checked ? '1' : '0';
 						break;
@@ -85,13 +92,20 @@ Element.register ('r-form',
 						val = '';
 						break;
 				}
-
-				if (def[i.dataset.field] && (!val || (i.type == 'checkbox' && val == '0')))
-					return;
 			}
 
 			def[i.dataset.field] = val;
 		});
+
+		for (let name in names)
+		{
+			if (name in def)
+				names[name] = def[name];
+			else
+				names[name] = '';
+		}
+
+		def = names;
 
 		this.model.defaults = def;
 		this.model.reset();
@@ -123,48 +137,49 @@ Element.register ('r-form',
 	{
 		if (!f) return;
 
-		if (typeof(f) == 'string')
+		for (f of this.querySelectorAll('[data-field="'+f+'"]'))
 		{
-			f = this.querySelector('[data-field="'+f+'"]');
-			if (!f) return;
-		}
+			switch (f.type || f.tagName.toLowerCase())
+			{
+				case 'select':
+					f.dataset.value = f.multiple ? (value ? value.split(',') : value) : value;
+					f.value = f.dataset.value;
 
-		switch (f.type || f.tagName.toLowerCase())
-		{
-			case 'select':
-				f.dataset.value = f.multiple ? (value ? value.split(',') : value) : value;
-				f.value = f.dataset.value;
+					if (silent !== true) this._change(f);
+					break;
 
-				if (silent !== true) this._change(f);
-				break;
+				case 'checkbox':
+					f.checked = parseInt(value) ? true : false;
+					break;
 
-			case 'checkbox':
-				f.checked = parseInt(value) ? true : false;
-				break;
+				case 'radio':
+					f.checked = value == f.value;
+					break;
 
-			case 'file':
-				if ((value instanceof File) || (value instanceof Blob))
-				{
+				case 'file':
+					if ((value instanceof File) || (value instanceof Blob))
+					{
+						f.dataset.value = value;
+					}
+					else if (value instanceof FileList)
+					{
+						f.dataset.value = value;
+					}
+					else
+					{
+						f.dataset.value = '';
+						f.value = '';
+					}
+
+					break;
+
+				default:
 					f.dataset.value = value;
-				}
-				else if (value instanceof FileList)
-				{
-					f.dataset.value = value;
-				}
-				else
-				{
-					f.dataset.value = '';
-					f.value = '';
-				}
+					f.value = value;
 
-				break;
-
-			default:
-				f.dataset.value = value;
-				f.value = value;
-
-				if (silent !== true) this._change(f);
-				break;
+					if (silent !== true) this._change(f);
+					break;
+			}
 		}
 	},
 
@@ -298,7 +313,7 @@ Element.register ('r-form',
 
 		let data = this.model.get(this.dataset.strict == 'false' ? false : true);
 
-		let f = this.dataset.formAction;
+		let f = this.dataset.formAction || this.formAction;
 		if (!f) return;
 
 		this._clearMarkers();
