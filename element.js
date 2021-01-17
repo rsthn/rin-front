@@ -69,15 +69,19 @@ const Element = module.exports =
 	events:
 	{
 		'click [data-action]': function(evt) {
-			if (evt.source.dataset.action in this)
-				this[evt.source.dataset.action] (evt.source.dataset, evt);
+			let opts = evt.source.dataset.action.split(' ');
+
+			if (opts[0] in this)
+				this[opts[0]] ({...evt.source.dataset, ...opts}, evt);
 			else
 				evt.continuePropagation = true;
 		},
 
 		'keyup(13) input[data-enter]': function(evt) {
-			if (evt.source.dataset.enter in this)
-				this[evt.source.dataset.enter] (evt.source.dataset, evt);
+			let opts = evt.source.dataset.enter.split(' ');
+
+			if (opts[0] in this)
+				this[opts[0]] ({...evt.source.dataset, ...opts}, evt);
 			else
 				evt.continuePropagation = true;
 		}
@@ -1240,6 +1244,23 @@ const Element = module.exports =
 
 		self._super = _super;
 		self.events = _super;
+	},
+
+	/**
+	**	Built-in action handlers.
+	*/
+
+	/**
+	**	:toggleClass <className>
+	**
+	**	Toggles a CSS class on the element.
+	*/
+	":toggleClass": function (args, evt)
+	{
+		if (evt.source.classList.contains(args[1]))
+			evt.source.classList.remove(args[1]);
+		else
+			evt.source.classList.add(args[1]);
 	}
 };
 
