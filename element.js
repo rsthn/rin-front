@@ -1251,16 +1251,23 @@ const Element = module.exports =
 	*/
 
 	/**
-	**	:toggleClass <className>
+	**	:toggleClass <className> [<selector>]
 	**
 	**	Toggles a CSS class on the element.
 	*/
 	":toggleClass": function (args, evt)
 	{
-		if (evt.source.classList.contains(args[1]))
-			evt.source.classList.remove(args[1]);
+		let elem = evt.source;
+
+		if ('2' in args)
+			elem = document.querySelector(args[2]);
+
+		if (!elem) return;
+
+		if (elem.classList.contains(args[1]))
+			elem.classList.remove(args[1]);
 		else
-			evt.source.classList.add(args[1]);
+			elem.classList.add(args[1]);
 	}
 };
 

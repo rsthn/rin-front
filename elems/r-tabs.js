@@ -31,6 +31,10 @@
 			Users
 		</div>
 	</div>
+
+	.tab-container > div.hidden {
+		display: none;
+	}
 */
 
 let Element = require('../element');
@@ -62,7 +66,7 @@ Element.register ('r-tabs',
 	*/
 	init: function()
 	{
-		this.className.add('tabs');
+		this.classList.add('tabs');
 
 		this._routeHandler = (evt, args) =>
 		{
