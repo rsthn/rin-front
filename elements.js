@@ -18,5 +18,10 @@ module.exports =
 {
 	Tabs: require('./elems/r-tabs'),
 	Form: require('./elems/r-form'),
-	Panel: require('./elems/r-panel')
+	Panel: require('./elems/r-panel'),
+	List: require('./elems/r-list'),
+	Item: require('./elems/r-item'),
+	Paginator: require('./elems/r-paginator'),
+	Table: require('./elems/r-table'),
+	Select: require('./elems/r-select')
 };

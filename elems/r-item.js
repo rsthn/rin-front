@@ -1,7 +1,7 @@
 /*
-**	rin-front/main
+**	rin-front/elems/r-item
 **
-**	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -14,14 +14,30 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-import _Router from './router.js';
-import _Element from './element.js';
-import _Api from './api.js';
-import _Elements from './elements.js';
-import _DataSource from './data-source.js';
+/*
+	<r-item data-model="window.model1">
+	</r-item>
+*/
 
-export const Router = _Router;
-export const Element = _Element;
-export const Api = _Api;
-export const DataSource = _DataSource;
-export const Elements = _Elements;
+let Element = require('../element');
+
+Element.register ('r-item',
+{
+	/**
+	**	Initializes the element.
+	*/
+	init: function()
+	{
+	},
+
+	/**
+	**	Executed when the children and root are ready.
+	*/
+	rready: function()
+	{
+		let model = this.getFieldByPath(this.dataset.model);
+		if (!model) return;
+
+		this.setModel (model);
+	}
+});

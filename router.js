@@ -1,5 +1,5 @@
 /*
-**	rin/router
+**	rin-front/router
 **
 **	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -166,17 +166,17 @@ let _Router = module.exports =
 	ignoreHashChangeEvent: 0,
 
 	/*
-	**	Current location.
+	**	Current relative location (everything after the location hash symbol).
 	*/
 	location: '',
 
 	/*
-	**	Current location as an array of elements (obtained by splitting the location by slash).
+	**	Current relative location as an array of elements (obtained by splitting the location by slash).
 	*/
 	args: [],
 
 	/*
-	**	Initializes the router global instance.
+	**	Initializes the router module. Ensure to call `refresh` once to force a hashchange when the page loads.
 	**
 	**	>> void init ();
 	*/
@@ -216,7 +216,8 @@ let _Router = module.exports =
 	},
 
 	/*
-	**	Adds the specified route to the routing map.
+	**	Adds the specified route to the routing map. When the specified route is detected, the `onRoute` handler will be called, and then
+	**	when the route exits `onUnroute` will be called.
 	**
 	**	>> void addRoute (string route, function onRoute);
 	**	>> void addRoute (string route, function onRoute, function onUnroute);
@@ -385,7 +386,7 @@ let _Router = module.exports =
 	},
 
 	/*
-	**	Event handler for when the location hash changes.
+	**	Event handler called when the location hash changes.
 	*/
 	onLocationChanged: function ()
 	{

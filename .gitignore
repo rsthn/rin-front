@@ -2,3 +2,4 @@
 .svn
 .cache
 node_modules
+local/

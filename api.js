@@ -1,5 +1,5 @@
 /*
-**	rin/api
+**	rin-front/api
 **
 **	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -26,7 +26,7 @@ if (!('fetch' in global))
 module.exports =
 {
 	/**
-	**	Target URL for all the API requests.
+	**	Target URL for all the API requests. Set by calling `setEndPoint`.
 	*/
 	apiUrl: "/api",
 
@@ -56,7 +56,15 @@ module.exports =
 	_packageData: [],
 
 	/**
-	**	Overridable filter that processes the response from the server and returns true if it was successful.
+	**	Sets the API end-point URL address.
+	*/
+	setEndPoint: function (apiUrl)
+	{
+		this.apiUrl = apiUrl;
+	},
+
+	/**
+	**	Overridable filter that processes the response from the server and returns true if it was successful. The `res` parameter indicates the response data, and `req` the request data.
 	*/
 	responseFilter: function (res, req)
 	{
@@ -64,7 +72,7 @@ module.exports =
 	},
 
 	/**
-	**	Sets the API functions to package-mode and bundles requests together.
+	**	Starts "package-mode" (using the `rpkg` field). Any API calls after this will be bundled together.
 	*/
 	packageBegin: function ()
 	{
@@ -72,7 +80,7 @@ module.exports =
 	},
 
 	/**
-	**	Sends a single API request with the currently constructed package and finishes package-mode.
+	**	Finishes "package-mode" and a single API request with the currently constructed package will be sent.
 	*/
 	packageEnd: function ()
 	{
@@ -83,6 +91,16 @@ module.exports =
 			return;
 
 		this.packageSend();
+	},
+
+	/**
+	**	Starts package-mode, executes the callback and finishes package-mode.
+	*/
+	packRequests: function (callback)
+	{
+		this.packageBegin();
+		callback();
+		this.packageEnd();
 	},
 
 	/**
@@ -99,13 +117,11 @@ module.exports =
 		var rpkg = "";
 
 		for (var i = 0; i < _packageData.length; i++)
-		{
 			rpkg += "r"+i+","+base64.encode(this.encodeParams(_packageData[i][2]))+";";
-		}
 
 		this._showProgress();
 
-		this.post(
+		this.apiCall (
 			{ rpkg: rpkg },
 
 			(res, req) =>
@@ -188,20 +204,25 @@ module.exports =
 	},
 
 	/**
-	**	Executes an API call to the URL stored in apiUrl.
+	**	Executes an API call to the URL stored in the `apiUrl` property. By default `httpMethod` is "auto", which will determine the best depending on the data to
+	**	be sent. Any connection error will be reported to the `failure` callback, and similarly any success to the `success` callback. The `params` object can be
+	**	a FormData object or just a regular object.
 	*/
-	apiCall: function (params, success, failure, type, retries)
+	apiCall: function (params, success, failure, httpMethod, retries)
 	{
 		let url = this.apiUrl + '?_=' + Date.now();
 
-		if (type != 'GET' && type != 'POST')
-			type = 'auto';
+		if (httpMethod != 'GET' && httpMethod != 'POST')
+			httpMethod = 'auto';
 
 		if (retries === undefined)
 			retries = this.retries;
 
 		if (this._requestPackage)
 		{
+			if (!(params instanceof FormData))
+				params = {...params};
+
 			this._packageData.push([success, failure, params]);
 			return;
 		}
@@ -217,7 +238,7 @@ module.exports =
 				'Content-Type': 'application/x-www-form-urlencoded',
 				'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9',
 			},
-			method: type,
+			method: httpMethod,
 			body: null,
 			multipart: false
 		};
@@ -267,7 +288,16 @@ module.exports =
 		}
 
 		if (options.method == 'GET')
+		{
 			url += '&' + this.encodeParams(data);
+		}
+		else
+		{
+			if (!options.multipart)
+				options.body = this.encodeParams(data);
+			else
+				options.body = data;
+		}
 
 		global.fetch(url, options)
 		.then(result => result.json())
@@ -287,7 +317,7 @@ module.exports =
 			if (retries == 0) {
 				if (failure) failure(params);
 			} else {
-				this.apiCall (data, success, failure, type, retries-1);
+				this.apiCall (data, success, failure, httpMethod, retries-1);
 			}
 		});
 	},

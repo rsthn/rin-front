@@ -16,9 +16,12 @@
 
 module.exports =
 {
+	rin: require('@rsthn/rin'),
+
 	Router: require('./router'),
 	Element: require('./element'),
 	Api: require('./api'),
+	DataSource: require('./data-source'),
 
 	Elements: require('./elements')
 };

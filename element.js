@@ -1,5 +1,5 @@
 /*
-**	rin/element
+**	rin-front/element
 **
 **	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -44,9 +44,14 @@ const Element = module.exports =
 	isRoot: true,
 
 	/**
-	**	Indicates if the element is ready (all children have been initialized).
+	**	Root element to which this element is attached (when applicable).
 	*/
-	isReady: false,
+	root: null,
+
+	/**
+	**	Indicates ready-state of the element. Value 0=not ready, 1=children-initialized, 2=parent-ready.
+	*/
+	isReady: 0,
 
 	/**
 	**	All children elements having data-ref are added to this map (and to the element itself).
@@ -105,7 +110,7 @@ const Element = module.exports =
 		{
 			let tmp = this.model;
 			this.model = null;
-			this.setModel (tmp);
+			this.setModel (tmp, false);
 		}
 
 		this._mutationObserver = true;
@@ -123,19 +128,14 @@ const Element = module.exports =
 		const ready = () =>
 		{
 			this.ready();
-			this.isReady = true;
+			this.isReady = 1;
 
 			if ('model' in this.dataset)
 			{
-				let tmp = this.dataset.model.split('.');
-				let ref = global;
-
-				while (ref != null && tmp.length != 0)
-					ref = ref[tmp.shift()];
-
+				let ref = this.getFieldByPath(this.dataset.model);
 				if (ref) this.setModel(ref);
 			}
-
+ 
 			Object.keys(this._super).reverse().forEach(i =>
 			{
 				if ('ready' in this._super[i])
@@ -145,8 +145,22 @@ const Element = module.exports =
 			this.collectWatchers();
 
 			let root = this.findCustomParent(this);
-			if (root && root._mutationHandler)
-				root._mutationHandler();
+			if (root)
+			{
+				// Added element using append/prepend on the root but there are no mutation handlers.
+				if (!root._mutationHandler)
+				{
+					if (root.isReady == 2)
+					{
+						this.rready();
+						this.isReady = 2;
+					}
+				}
+				else
+					root._mutationHandler();
+			}
+
+			return root;
 		};
 
 		let timeout = null;
@@ -183,19 +197,22 @@ const Element = module.exports =
 				timeout = null;
 
 				let is_ready = true;
+				let list = [];
 
 				this.querySelectorAll('[data-_custom]').forEach(i =>
 				{
 					let root = this.findCustomParent(i);
 					if (root !== this) return;
-	
+
 					if (!i.isReady) is_ready = false;
+					if (i.isReady != 2) list.push(i);
 				});
 	
 				if (!is_ready) return;
 
-				for (let elem of this.querySelectorAll('[data-ref]'))
+				for (let elem of this.querySelectorAll('[data-_pending=true]'))
 				{
+console.log('FOUND ELEMENT ' + elem.tagName);
 					if (elem.dataset._linked != 'true')
 					{
 						this[elem.dataset.ref] = elem;
@@ -213,7 +230,19 @@ const Element = module.exports =
 				this._mutationObserver.disconnect();
 				this._mutationObserver = null;
 
-				ready();
+				let root = ready();
+
+				for (let i of list)
+				{
+					i.rready();
+					i.isReady = 2;
+				}
+
+				if (!root)
+				{
+					this.isReady = 2;
+					this.rready();
+				}
 			},
 			50);
 		};
@@ -243,6 +272,38 @@ const Element = module.exports =
 	},
 
 	/**
+	**	Executed after ready and after the root is also ready.
+	**
+	**	>> void rready();
+	*/
+	rready: function()
+	{
+	},
+
+	/*
+	**	Returns the value of a field given its path. Default `ref` is set to `global`. However, if the first item in the path is `this`
+	**	then the ref will be set to the element itself.
+	*/
+	getFieldByPath: function(path)
+	{
+		if (!path) return null;
+
+		let tmp = path.split('.');
+		let ref = global;
+
+		if (tmp.length && tmp[0] == 'this')
+		{
+			ref = this;
+			tmp.shift();
+		}
+
+		while (ref != null && tmp.length != 0)
+			ref = ref[tmp.shift()];
+
+		return ref;
+	},
+
+	/**
 	**	Returns the root of the element (that is, the 'root' property). If not set it will attempt to find the root first.
 	**
 	**	>> Element getRoot ();
@@ -263,20 +324,23 @@ const Element = module.exports =
 
 		model = Rin.ensureTypeOf(this.modelt, model);
 
-		if (this.model != null)
+		if (this.model !== model)
 		{
-			this.model.removeEventListener (this.eid+':modelChanged', this.onModelPreChanged, this);
-			this.model.removeEventListener (this.eid+':propertyChanging', this.onModelPropertyChanging, this);
-			this.model.removeEventListener (this.eid+':propertyChanged', this.onModelPropertyPreChanged, this);
-			this.model.removeEventListener (this.eid+':propertyRemoved', this.onModelPropertyRemoved, this);
+			if (this.model != null)
+			{
+				this.model.removeEventListener (this.eid+':modelChanged', this.onModelPreChanged, this);
+				this.model.removeEventListener (this.eid+':propertyChanging', this.onModelPropertyChanging, this);
+				this.model.removeEventListener (this.eid+':propertyChanged', this.onModelPropertyPreChanged, this);
+				this.model.removeEventListener (this.eid+':propertyRemoved', this.onModelPropertyRemoved, this);
+			}
+
+			this.model = model;
+
+			this.model.addEventListener (this.eid+':modelChanged', this.onModelPreChanged, this);
+			this.model.addEventListener (this.eid+':propertyChanging', this.onModelPropertyChanging, this);
+			this.model.addEventListener (this.eid+':propertyChanged', this.onModelPropertyPreChanged, this);
+			this.model.addEventListener (this.eid+':propertyRemoved', this.onModelPropertyRemoved, this);
 		}
-
-		this.model = model;
-
-		this.model.addEventListener (this.eid+':modelChanged', this.onModelPreChanged, this);
-		this.model.addEventListener (this.eid+':propertyChanging', this.onModelPropertyChanging, this);
-		this.model.addEventListener (this.eid+':propertyChanged', this.onModelPropertyPreChanged, this);
-		this.model.addEventListener (this.eid+':propertyRemoved', this.onModelPropertyRemoved, this);
 
 		if (update !== false)
 			this.model.setNamespace(this.eid).update(true).setNamespace(null);
@@ -637,6 +701,7 @@ const Element = module.exports =
 					timeout = null;
 
 					let is_ready = true;
+					let list = [];
 
 					this.querySelectorAll('[data-_custom]').forEach(i =>
 					{
@@ -644,6 +709,7 @@ const Element = module.exports =
 						if (root !== this) return;
 
 						if (!i.isReady) is_ready = false;
+						if (i.isReady != 2) list.push(i);
 					});
 
 					if (!is_ready) return;
@@ -652,6 +718,12 @@ const Element = module.exports =
 
 					this._mutationObserver.disconnect();
 					this._mutationObserver = null;
+
+					for (let i of list)
+					{
+						i.rready();
+						i.isReady = 2;
+					}
 
 					this.collectWatchers();
 				},
@@ -967,6 +1039,7 @@ const Element = module.exports =
 
 					default:
 						this._list_property[i].value = args.value;
+						this._list_property[i]._value = args.value;
 
 						if (this._list_property[i].value != args.value)
 							trigger = false;
@@ -983,8 +1056,7 @@ const Element = module.exports =
 	},
 
 	/**
-	**	Event handler invoked when a property of the model has changed. Automatically triggers an
-	**	internal event named "propertyChanged.<propertyName>".
+	**	Event handler invoked when a property of the model has changed. Automatically triggers an internal event named "propertyChanged.<propertyName>".
 	**
 	**	>> void onModelPropertyChanged (evt, args);
 	*/
@@ -1089,17 +1161,18 @@ const Element = module.exports =
 				return null;
 			}
 
-			connectReference(root=null, flags=255)
+			connectReference (root=null, flags=255)
 			{
-				if (!this.dataset.ref) return;
-
 				if (!this.root && (flags & 1) == 1)
 				{
 					if (root == null) root = this.findRoot();
 					if (root != null)
 					{
-						root[this.dataset.ref] = this;
-						root.refs[this.dataset.ref] = this;
+						if (this.dataset.ref)
+						{
+							root[this.dataset.ref] = this;
+							root.refs[this.dataset.ref] = this;
+						}
 
 						delete this.dataset._pending;
 
@@ -1110,11 +1183,11 @@ const Element = module.exports =
 						this.dataset._pending = 'true';
 				}
 
-				if (this.root && (flags & 2) == 2)
+				if (this.root && (flags & 2) == 2 && this.dataset.ref)
 					this.root.onRefAdded (this.dataset.ref);
 			}
 
-			connectedCallback()
+			connectedCallback ()
 			{
 				this.connectReference(null, 1);
 
@@ -1135,14 +1208,17 @@ const Element = module.exports =
 
 			disconnectedCallback()
 			{
-				if (this.dataset.ref && this.root)
+				if (this.root)
 				{
-					this.root.onRefRemoved (this.dataset.ref);
+					if (this.dataset.ref)
+					{
+						this.root.onRefRemoved (this.dataset.ref);
+
+						delete this.root[this.dataset.ref];
+						delete this.root.refs[this.dataset.ref];
+					}
 
 					delete this.dataset._pending;
-
-					delete this.root[this.dataset.ref];
-					delete this.root.refs[this.dataset.ref];
 
 					this.dataset._linked = 'false';
 					this.root = null;
