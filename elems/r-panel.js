@@ -41,8 +41,6 @@ Element.register ('r-panel',
 	*/
 	init: function()
 	{
-		this.classList.add('panel');
-
 		// Executed then the panel route is activated.
 		this._onActivate = (evt, args) =>
 		{

@@ -74,6 +74,14 @@ Element.register ('r-table',
 	*/
 	init: function()
 	{
+		this.setModel({ });
+	},
+
+	/**
+	**	Executed when the children of the element are ready.
+	*/
+	ready: function()
+	{
 		this.container = this.querySelector(this.dataset.container || 'tbody.x-data');
 		if (!this.container) throw new Error ('r-table requires a container');
 
@@ -85,12 +93,11 @@ Element.register ('r-table',
 		this.temporalBody = document.createElement('tbody');
 		this.container.textContent = ' ';
 
-		this.setModel({ });
 		this.setEmpty(true);
 	},
 
 	/**
-	**	Executed when the children of the element are ready.
+	**	Executed when the children and root elements are ready.
 	*/
 	rready: function()
 	{
@@ -152,6 +159,8 @@ Element.register ('r-table',
 	*/
 	onRequestPropertyChanged: function(evt, args)
 	{
+		this.model.set(args.name, args.value);
+
 		if (args.name == 'sort')
 		{
 			this.querySelectorAll('thead [data-sort]').forEach(i => i.dataset.order = '');
@@ -289,7 +298,7 @@ Element.register ('r-table',
 		else
 		{
 			this.source.request.set('sort', evt.source.dataset.sort);
-			this.source.request.set('order', 'asc');
+			this.source.request.set('order', 'asc', true);
 			this.source.refresh('order');
 		}
 	}

@@ -20,6 +20,7 @@ const Api = require('./api');
 module.exports = EventDispatcher.extend
 ({
 	className: 'DataSource',
+	debounceDelay: 250,
 
 	request: null,
 
@@ -85,19 +86,77 @@ module.exports = EventDispatcher.extend
 	*/
 	refresh: function (mode='full')
 	{
-		let n = (this.includeCount && (mode == 'full' || mode == 'filter')) + (this.includeEnum && (mode == 'full')) + this.includeList;
-		if (n > 1) Api.packageBegin();
+		if (this._timeout)
+		{
+			clearTimeout(this._timeout);
+			this._timeout = null;
+		}
 
-		if (this.includeCount && (mode == 'full' || mode == 'filter')) this.fetchCount();
-		if (this.includeEnum && (mode == 'full')) this.fetchEnum();
-		if (this.includeList) this.fetchList();
+		this._timeout = setTimeout(() =>
+		{
+			this._timeout = null;
 
-		if (n > 1) Api.packageEnd();
+			let n = (this.includeCount && (mode == 'full' || mode == 'filter')) + (this.includeEnum && (mode == 'full')) + this.includeList;
+			if (n > 1) Api.packageBegin();
+
+			if (this.includeCount && (mode == 'full' || mode == 'filter')) this.fetchCount();
+			if (this.includeEnum && (mode == 'full')) this.fetchEnum();
+			if (this.includeList) this.fetchList();
+
+			if (n > 1) Api.packageEnd();
+		},
+		this.debounceDelay);
+	},
+
+	/*
+	**	Returns the details from an entry of the list, or runs a remote fetch if not found (or if `forced` is true). Returns a promise.
+	*/
+	fetch: function (params, forced=false)
+	{
+		return new Promise((resolve, reject) =>
+		{
+			let item = forced == true ? null : this.list.find(params, true);
+			if (!item)
+			{
+				this.fetchOne(params, (r) =>
+				{
+					if (r && r.response == 200)
+					{
+						if (r.data.length > 0)
+							resolve(r.data[0], r);
+						else
+							reject(null);
+					}
+					else
+						reject(r.error);
+				});
+			}
+			else
+				resolve(item.get());
+		});
+	},
+
+	/*
+	**	Removes an item from the remote data source. Returns a promise.
+	*/
+	delete: function (params)
+	{
+		return new Promise((resolve, reject) =>
+		{
+			this.fetchDelete(params, (r) =>
+			{
+				if (r.response == 200)
+					resolve(r);
+				else
+					reject(r.error);
+			});
+		});
 	},
 
 	fetchList: function ()
 	{
 		this.request.set('f', this.basePath + '.list', false);
+
 		Api.fetch(this.request.get()).then(r => {
 			this.list.setData(r.response == 200 ? r.data : null);
 			this.dispatchEvent('listChanged');
@@ -107,6 +166,7 @@ module.exports = EventDispatcher.extend
 	fetchEnum: function ()
 	{
 		this.request.set('f', this.basePath + '.enum', false);
+
 		Api.fetch(this.request.get()).then(r => {
 			this.enum.setData(r.response == 200 ? r.data : null);
 			this.dispatchEvent('enumChanged');
@@ -116,9 +176,30 @@ module.exports = EventDispatcher.extend
 	fetchCount: function ()
 	{
 		this.request.set('f', this.basePath + '.count', false);
+
 		Api.fetch(this.request.get()).then(r => {
 			this.count = r.response == 200 ? r.count : 0;
 			this.dispatchEvent('countChanged');
+		});
+	},
+
+	fetchOne: function (params, callback)
+	{
+		this.request.set('f', this.basePath + '.get', false);
+		this.request.set(params, false);
+
+		Api.fetch(this.request.get()).then(r => {
+			callback(r);
+		});
+	},
+
+	fetchDelete: function (params, callback)
+	{
+		this.request.set('f', this.basePath + '.delete', false);
+		this.request.set(params, false);
+
+		Api.fetch(this.request.get()).then(r => {
+			callback(r);
 		});
 	}
 });

@@ -19,7 +19,7 @@
 		<input type="text" data-field="username"/>
 	</r-form>
 
-	.form .message.hidden {
+	.form .message.x-hidden {
 		display: none !important;
 	}
 */
@@ -52,8 +52,6 @@ Element.register ('r-form',
 	*/
 	init: function()
 	{
-		this.classList.add('form');
-
 		this.setModel({ });
 	},
 
@@ -209,7 +207,7 @@ Element.register ('r-form',
 	{
 		this.classList.remove('busy');
 
-		this.querySelectorAll('.message, .loading-indicator').forEach(i => i.classList.add('hidden') );
+		this.querySelectorAll('.message, .loading-indicator').forEach(i => i.classList.add('x-hidden') );
 		this.querySelectorAll('span.field-error').forEach(i => i.remove());
 
 		this.querySelectorAll('.field-error').forEach(i => { i.classList.remove('field-error'); i.classList.remove('is-invalid'); });
@@ -233,14 +231,14 @@ Element.register ('r-form',
 		this.classList.remove('busy');
 
 		let tmp = this.querySelector('.loading-indicator');
-		if (tmp) tmp.classList.add('hidden');
+		if (tmp) tmp.classList.add('x-hidden');
 
 		this.dispatch ('formSuccess', r);
 
 		if (r.message && (tmp = this.querySelector('.message.success')) != null)
 		{
 			tmp.innerHTML = this.filterString(r.message, r);
-			tmp.classList.remove('hidden');
+			tmp.classList.remove('x-hidden');
 		}
 	},
 
@@ -249,7 +247,7 @@ Element.register ('r-form',
 		this.classList.remove('busy');
 
 		let tmp = this.querySelector('.loading-indicator');
-		if (tmp) tmp.classList.add('hidden');
+		if (tmp) tmp.classList.add('x-hidden');
 
 		this.dispatch ('formError', r);
 
@@ -257,16 +255,26 @@ Element.register ('r-form',
 		{
 			for (let i in r.fields)
 			{
+				let f = this.querySelector('[data-field-container="'+i+'"]');
+				if (!f)
+				{
+					f = this.querySelector('[data-field="'+i+'"]');
+					if (!f) continue;
+				}
+
 				tmp = document.createElement('span');
 				tmp.classList.add('field-error');
 				tmp.innerHTML = this.filterString(r.fields[i], r);
 
-				let f = this.querySelector('[data-field-container="'+i+'"]');
-				if (!f) f = this.querySelector('[data-field="'+i+'"]');
 				f.classList.add('field-error');
 				f.classList.add('is-invalid');
 
-				f.parentElement.insertBefore(tmp, f.nextElementSibling);
+				if (this.dataset.errorsAt == 'bottom')
+					f.parentElement.append(tmp);
+				else if (this.dataset.errorsAt == 'top')
+					f.parentElement.prepend(tmp);
+				else
+					f.parentElement.insertBefore(tmp, f.nextElementSibling);
 
 				setTimeout((function (tmp) { return function() { tmp.classList.add('active'); } })(tmp), 25);
 			}
@@ -274,7 +282,7 @@ Element.register ('r-form',
 			if (r.error && (tmp = this.querySelector('.message.error')) != null)
 			{
 				tmp.innerHTML = this.filterString(r.error, r);
-				tmp.classList.remove('hidden');
+				tmp.classList.remove('x-hidden');
 			}
 		}
 		else
@@ -282,7 +290,7 @@ Element.register ('r-form',
 			if ((tmp = this.querySelector('.message.error')) != null)
 			{
 				tmp.innerHTML = this.filterString(r.error, r) || ('Error: ' + r.response);
-				tmp.classList.remove('hidden');
+				tmp.classList.remove('x-hidden');
 			}
 		}
 	},
@@ -321,7 +329,7 @@ Element.register ('r-form',
 		this.classList.add('busy');
 
 		let tmp = this.querySelector('.loading-indicator');
-		if (tmp) tmp.classList.remove('hidden');
+		if (tmp) tmp.classList.remove('x-hidden');
 
 		if (typeof(f) != 'function')
 		{

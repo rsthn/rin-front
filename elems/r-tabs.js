@@ -32,7 +32,7 @@
 		</div>
 	</div>
 
-	.tab-container > div.hidden {
+	.tab-container > div.x-hidden {
 		display: none;
 	}
 */
@@ -66,8 +66,6 @@ Element.register ('r-tabs',
 	*/
 	init: function()
 	{
-		this.classList.add('tabs');
-
 		this._routeHandler = (evt, args) =>
 		{
 			if (!args.route.changed)
@@ -109,7 +107,7 @@ Element.register ('r-tabs',
 	},
 
 	/**
-	**	Hides all tabs except the one with the specified exceptName, if none specified then all tabs will be hidden (adds .hidden CSS class),
+	**	Hides all tabs except the one with the specified exceptName, if none specified then all tabs will be hidden (adds .x-hidden CSS class),
 	**	additionally the respective link item in the tab definition will have class 'active'.
 	*/
 	_hideTabsExcept: function (exceptName)
@@ -118,33 +116,31 @@ Element.register ('r-tabs',
 
 		if (!exceptName) exceptName = '';
 
-		for (let i = 0; i < this.container.children.length; i++)
+		this.container.querySelectorAll(':scope > [data-name]').forEach(i =>
 		{
-			if (this.container.children[i].dataset.name == exceptName)
+			if (i.dataset.name == exceptName)
 			{
-				if (this.container.children[i].classList.contains('hidden'))
-					this.dispatch('tab-activate', { name: this.container.children[i].dataset.name, el: this.container.children[i] });
+				if (i.classList.contains('x-hidden'))
+					this.dispatch('tab-activate', { name: i.dataset.name, el: i });
 
-				this.container.children[i].classList.remove('hidden');
+				i.classList.remove('x-hidden');
 			}
 			else
 			{
-				if (!this.container.children[i].classList.contains('hidden'))
-					this.dispatch('tab-deactivate', { name: this.container.children[i].dataset.name, el: this.container.children[i] });
+				if (!i.classList.contains('x-hidden'))
+					this.dispatch('tab-deactivate', { name: i.dataset.name, el: i });
 
-				this.container.children[i].classList.add('hidden');
+				i.classList.add('x-hidden');
 			}
-		}
+		});
 
-		let links = this.querySelectorAll("[data-name]");
-
-		for (let i = 0; i < links.length; i++)
+		this.querySelectorAll("[data-name]").forEach(link =>
 		{
-			if (links[i].dataset.name == exceptName)
-				links[i].classList.add('active');
+			if (link.dataset.name == exceptName)
+				link.classList.add('active');
 			else
-				links[i].classList.remove('active');
-		}
+				link.classList.remove('active');
+		});
 	},
 
 	/**
