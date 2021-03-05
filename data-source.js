@@ -155,9 +155,11 @@ module.exports = EventDispatcher.extend
 
 	fetchList: function ()
 	{
-		this.request.set('f', this.basePath + '.list', false);
+		let data = {...this.request.get()};
 
-		Api.fetch(this.request.get()).then(r => {
+		data.f = this.basePath + '.list';
+
+		Api.fetch(data).then(r => {
 			this.list.setData(r.response == 200 ? r.data : null);
 			this.dispatchEvent('listChanged');
 		});
@@ -165,9 +167,11 @@ module.exports = EventDispatcher.extend
 
 	fetchEnum: function ()
 	{
-		this.request.set('f', this.basePath + '.enum', false);
+		let data = {...this.request.get()};
 
-		Api.fetch(this.request.get()).then(r => {
+		data.f = this.basePath + '.enum';
+
+		Api.fetch(data).then(r => {
 			this.enum.setData(r.response == 200 ? r.data : null);
 			this.dispatchEvent('enumChanged');
 		});
@@ -175,9 +179,11 @@ module.exports = EventDispatcher.extend
 
 	fetchCount: function ()
 	{
-		this.request.set('f', this.basePath + '.count', false);
+		let data = {...this.request.get()};
 
-		Api.fetch(this.request.get()).then(r => {
+		data.f = this.basePath + '.count';
+
+		Api.fetch(data).then(r => {
 			this.count = r.response == 200 ? r.count : 0;
 			this.dispatchEvent('countChanged');
 		});
@@ -185,20 +191,22 @@ module.exports = EventDispatcher.extend
 
 	fetchOne: function (params, callback)
 	{
-		this.request.set('f', this.basePath + '.get', false);
-		this.request.set(params, false);
+		let data = {...this.request.get(), ...params};
 
-		Api.fetch(this.request.get()).then(r => {
+		data.f = this.basePath + '.get';
+
+		Api.fetch(data).then(r => {
 			callback(r);
 		});
 	},
 
 	fetchDelete: function (params, callback)
 	{
-		this.request.set('f', this.basePath + '.delete', false);
-		this.request.set(params, false);
+		let data = {...this.request.get(), ...params};
 
-		Api.fetch(this.request.get()).then(r => {
+		data.f = this.basePath + '.delete';
+
+		Api.fetch(data).then(r => {
 			callback(r);
 		});
 	}

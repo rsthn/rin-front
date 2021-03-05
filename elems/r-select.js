@@ -38,13 +38,12 @@ Element.register ('r-select',
 		this.container = document.createElement('select');
 		this.parentElement.insertBefore(this.container, this);
 
-		for (let i in this.dataset)
+		for (let attr of this.attributes)
 		{
-			if (i[0] == '_' || i == 'list' || i == 'blank')
+			if (attr.nodeName.startsWith('data-_') || attr.nodeName == 'data-list' || attr.nodeName == 'data-blank')
 				continue;
 
-			this.container.dataset[i] = this.dataset[i];
-			delete this.dataset[i];
+			this.container.setAttribute(attr.nodeName, attr.nodeValue);
 		}
 
 		this.textContent = ' ';
