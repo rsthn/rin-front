@@ -28,7 +28,8 @@ const elementClasses = { };
 
 
 /*
-**	Base class for custom elements.
+**	Base class for custom elements. Provides support for model-triggered events, easy definition of handlers for events originated in
+**	self or child-elements, and several utility methods.
 */
 
 const Element = module.exports = 
@@ -39,7 +40,7 @@ const Element = module.exports =
 	eid: null,
 
 	/**
-	**	Indicates if the element is a root element, that is, the target element to attach child elements having data-ref attribute.
+	**	Indicates if the element is a root element, that is, the target element to attach child elements having `data-ref` attribute.
 	*/
 	isRoot: true,
 
@@ -49,12 +50,12 @@ const Element = module.exports =
 	root: null,
 
 	/**
-	**	Indicates ready-state of the element. Value 0=not ready, 1=children-initialized, 2=parent-ready.
+	**	Indicates ready-state of the element. Possible values are: 0: "Not ready", 1: "Children Initialized", and 2: "Parent Ready".
 	*/
 	isReady: 0,
 
 	/**
-	**	All children elements having data-ref are added to this map (and to the element itself).
+	**	All children elements having the `data-ref` attribute are added to this map (and to the element itself).
 	*/
 	refs: null,
 
@@ -255,8 +256,6 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Initializes the element. Called after construction of the instance.
-	**
-	**	>> void init();
 	*/
 	init: function()
 	{
@@ -264,8 +263,6 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Executed when the children of the element are ready.
-	**
-	**	>> void ready();
 	*/
 	ready: function()
 	{
@@ -273,16 +270,13 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Executed after ready and after the root is also ready.
-	**
-	**	>> void rready();
 	*/
 	rready: function()
 	{
 	},
 
 	/*
-	**	Returns the value of a field given its path. Default `ref` is set to `global`. However, if the first item in the path is `this`
-	**	then the ref will be set to the element itself.
+	**	Returns the value of a field given its path. Starts from `global`, unless the first item in the path is `this`, in which case it will start from the element.
 	*/
 	getFieldByPath: function(path)
 	{
@@ -304,9 +298,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/**
-	**	Returns the root of the element (that is, the 'root' property). If not set it will attempt to find the root first.
-	**
-	**	>> Element getRoot ();
+	**	Returns the root of the element (that is, the `root` property). If not set it will attempt to find the root first.
 	*/
 	getRoot: function()
 	{
@@ -314,11 +306,9 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/**
-	**	Sets the model of the element and executes the modelChanged event handler.
-	**
-	**	>> Element setModel (Model model, [bool update=true]);
+	**	Sets the model of the element and executes the `modelChanged` event handler (unless `update` is set to false).
 	*/
-	setModel: function (model, update)
+	setModel: function (model, update=true)
 	{
 		if (!model) return this;
 
@@ -349,9 +339,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/**
-	**	Returns the model of the element. This is a dummy function returning the public attribute "model" of this class.
-	**
-	**	>> Model getModel();
+	**	Returns the model of the element. Added for symmetry only, exactly the same as accesing public property `model` of this class.
 	*/
 	getModel: function ()
 	{
@@ -360,8 +348,6 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/*
 	**	Adds one or more CSS classes (separated by space) to the element.
-	**
-	**	>> void addClass (string classString);
 	*/
 	addClass: function (classString)
 	{
@@ -370,9 +356,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/*
-	**	Removes one or more CSS classes (separated by space) to the element.
-	**
-	**	>> void removeClass (string classString);
+	**	Removes one or more CSS classes (separated by space) from the element.
 	*/
 	removeClass: function (classString)
 	{
@@ -381,9 +365,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/*
-	**	Adds one or more style properties.
-	**
-	**	>> void setStyle (string styleString);
+	**	Sets one or more style properties to the element (separated by semi-colon).
 	*/
 	setStyle: function (styleString)
 	{
@@ -405,21 +387,17 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/*
-	**	Returns the width of the element.
-	**
-	**	>> float getWidth([elem]);
+	**	Returns the width of the specified element (or of itself it none provided), uses `getBoundingClientRect`.
 	*/
-	getWidth: function (elem)
+	getWidth: function (elem=null)
 	{
 		return (elem || this).getBoundingClientRect().width;
 	},
 
 	/*
-	**	Returns the height of the element.
-	**
-	**	>> float getHeight([elem]);
+	**	Returns the height of the specified element (or of itself it none provided), uses `getBoundingClientRect`.
 	*/
-	getHeight: function (elem)
+	getHeight: function (elem=null)
 	{
 		return (elem || this).getBoundingClientRect().height;
 	},
@@ -556,7 +534,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/**
-	**	Listens for an event for elements matching the specified selector, returns an object with a single method remove() used
+	**	Listens for an event on elements matching the specified selector, returns an object with a single method `remove` used
 	**	to remove the listener when it is no longer needed.
 	**
 	**	>> object listen (string eventName, string selector, function handler);
@@ -648,8 +626,6 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Dispatches a new event with the specified name and the given arguments.
-	**
-	**	>> void dispatch (string eventName, object args, bool bubbles=true);
 	*/
 	dispatch: function (eventName, args=null, bubbles=true)
 	{
@@ -657,9 +633,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/**
-	**	Dispatches a new event on the specified element with the given name and arguments.
-	**
-	**	>> void dispatchOn (HTMLElement elem, string eventName, object args, bool bubbles=true);
+	**	Dispatches a new event on the specified element with the given name and arguments (uses `CustomEvent`).
 	*/
 	dispatchOn: function (elem, eventName, args=null, bubbles=true)
 	{
@@ -897,8 +871,6 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Executed when the element is created and yet not attached to the DOM tree.
-	**
-	**	>> void onCreated ();
 	*/
 	onCreated: function()
 	{
@@ -906,8 +878,6 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Executed when the element is attached to the DOM tree.
-	**
-	**	>> void onConnected ();
 	*/
 	onConnected: function()
 	{
@@ -915,26 +885,20 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Executed when the element is no longer a part of the DOM tree.
-	**
-	**	>> void onDisconnected ();
 	*/
 	onDisconnected: function()
 	{
 	},
 
 	/**
-	**	Executed on the root element when a child element has data-ref attribute and it was added to the root.
-	**
-	**	>> void onRefAdded (string name);
+	**	Executed on the root element when a child element has `data-ref` attribute and it was added to it.
 	*/
 	onRefAdded: function (name)
 	{
 	},
 
 	/**
-	**	Executed on the root element when a child element has data-ref attribute and it was removed from the root.
-	**
-	**	>> void onRefRemoved (string name);
+	**	Executed on the root element when a child element has `data-ref` attribute and it was removed from it.
 	*/
 	onRefRemoved: function (name)
 	{
@@ -975,17 +939,13 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 	/**
 	**	Event handler invoked when the model has changed.
-	**
-	**	>> void onModelChanged (evt, args);
 	*/
 	onModelChanged: function (evt, args)
 	{
 	},
 
 	/**
-	**	Event handler invoked when a property of the model is changing.
-	**
-	**	>> void onModelPropertyChanging (evt, args);
+	**	Event handler invoked when a property of the model is changing. Fields `name` and `value` can be found in the `args` object.
 	*/
 	onModelPropertyChanging: function (evt, args)
 	{
@@ -994,8 +954,6 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	/**
 	**	Event handler invoked when a property of the model has changed, executed before onModelPropertyChanged() to update internal
 	**	dependencies, should not be overriden or elements depending on the property will not be updated.
-	**
-	**	>> void onModelPropertyPreChanged (evt, args);
 	*/
 	onModelPropertyPreChanged: function (evt, args)
 	{
@@ -1056,9 +1014,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/**
-	**	Event handler invoked when a property of the model has changed. Automatically triggers an internal event named "propertyChanged.<propertyName>".
-	**
-	**	>> void onModelPropertyChanged (evt, args);
+	**	Event handler invoked when a property of the model has changed. Should be overriden only if required. Automatically triggers internal events named `propertyChanged.<propertyName>` and `propertyChanged`.
 	*/
 	onModelPropertyChanged: function (evt, args)
 	{
@@ -1067,9 +1023,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/**
-	**	Event handler invoked when a property of the model is removed.
-	**
-	**	>> void onModelPropertyRemoved (evt, args);
+	**	Event handler invoked when a property of the model is removed. Field `name` can be found in the `args` object.
 	*/
 	onModelPropertyRemoved: function (evt, args)
 	{
@@ -1102,11 +1056,11 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	},
 
 	/*
-	**	Registers a new custom element with the specified name, extra functionality can be added with one or more prototypes, by default
-	**	all elements also get the Element prototype. Note that the final prototypes of all registered elements are stored, and if you want
+	**	Registers a new custom element with the specified name. Extra functionality can be added with one or more prototypes, by default
+	**	all elements also get the `Element` prototype. Note that the final prototypes of all registered elements are stored, and if you want
 	**	to inherit another element's prototype just provide its name (string) in the protos argument list.
 	**
-	**	>> class register (string name, (object|string)... protos);
+	**	>> class register (string name, ...(object|string) protos);
 	*/
 	register: function (name, ...protos)
 	{
@@ -1288,7 +1242,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	/*
 	**	Expands an already created custom element with the specified prototype(s).
 	**
-	**	>> void expand (string elementName, object... protos);
+	**	>> void expand (string elementName, ...object protos);
 	*/
 	expand: function (name, ...protos)
 	{

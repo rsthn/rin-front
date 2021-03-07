@@ -13,8 +13,9 @@
         "test": "echo Ok",
         "requirements": "yarn global add --ignore-optional parcel-bundler http-server",
         "deploy": "npm run build && node ./local/deploy.js",
-        "build": "parcel build ./main.js -o rin-front.js --global rfront",
-        "watch": "parcel watch ./main.js -d local -o rin-front.js --global rfront --no-hmr",
+        "commit": "npm run build && node ./local/commit.js",
+        "build": "parcel build ./main.browser.js -o rin-front.js --global rfront",
+        "watch": "parcel watch ./main.browser.js -d local -o rin-front.js --global rfront --no-hmr",
         "serve": "http-server -c-1 -p 8080 ./local"
     },
     "repository": {

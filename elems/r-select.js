@@ -51,7 +51,7 @@ Element.register ('r-select',
 	},
 
 	/**
-	**	Executed when the children of the element are ready.
+	**	Executed when the children and parent of the element are ready.
 	*/
 	rready: function()
 	{
@@ -63,6 +63,9 @@ Element.register ('r-select',
 		}
 
 		this.setList(list);
+
+		if (this.parentElement.lastElementChild !== this)
+			this.parentElement.append(this);
 	},
 
 	/**

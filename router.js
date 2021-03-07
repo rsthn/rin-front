@@ -177,8 +177,6 @@ let _Router = module.exports =
 
 	/*
 	**	Initializes the router module. Ensure to call `refresh` once to force a hashchange when the page loads.
-	**
-	**	>> void init ();
 	*/
 	init: function ()
 	{
@@ -193,8 +191,6 @@ let _Router = module.exports =
 
 	/*
 	**	Refreshes the current route by forcing a hashchange event.
-	**
-	**	>> void refresh ();
 	*/
 	refresh: function ()
 	{
@@ -203,8 +199,6 @@ let _Router = module.exports =
 
 	/*
 	**	Changes the current location and optionally prevents a trigger of the hashchange event.
-	**
-	**	>> void setRoute (string route[, bool silent]);
 	*/
 	setRoute: function (route, silent)
 	{
@@ -218,9 +212,6 @@ let _Router = module.exports =
 	/*
 	**	Adds the specified route to the routing map. When the specified route is detected, the `onRoute` handler will be called, and then
 	**	when the route exits `onUnroute` will be called.
-	**
-	**	>> void addRoute (string route, function onRoute);
-	**	>> void addRoute (string route, function onRoute, function onUnroute);
 	*/
 	addRoute: function (route, onRoute, onUnroute)
 	{
@@ -246,8 +237,6 @@ let _Router = module.exports =
 	/*
 	**	Adds the specified routes to the routing map. The routes map should contain the route expression
 	**	in the key of the map and a handler function in the value.
-	**
-	**	>> void addRoutes (routes: map);
 	*/
 	addRoutes: function (routes)
 	{
@@ -269,9 +258,6 @@ let _Router = module.exports =
 
 	/*
 	**	Removes the specified route from the routing map.
-	**
-	**	>> void removeRoute (string route, function onRoute);
-	**	>> void removeRoute (string route, function onRoute, function onUnroute);
 	*/
 	removeRoute: function (route, onRoute, onUnroute)
 	{
@@ -289,8 +275,6 @@ let _Router = module.exports =
 	/*
 	**	Removes the specified routes from the routing map. The routes map should contain the route
 	**	expression in the key of the map and a handler function in the value.
-	**
-	**	>> void removeRoutes (routes: map);
 	*/
 	removeRoutes: function (routes)
 	{
@@ -304,8 +288,6 @@ let _Router = module.exports =
 
 	/*
 	**	Given a formatted location and a previous one it will return the correct real location.
-	**
-	**	string realLocation (cLocation: string, pLocation: string);
 	*/
 	realLocation: function (cLocation, pLocation)
 	{

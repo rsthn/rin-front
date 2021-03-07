@@ -94,7 +94,7 @@ module.exports =
 	},
 
 	/**
-	**	Starts package-mode, executes the callback and finishes package-mode.
+	**	Starts package-mode, executes the callback and finishes package-mode. Therefore any requests made by the callback will be packed together.
 	*/
 	packRequests: function (callback)
 	{

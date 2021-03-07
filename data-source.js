@@ -17,6 +17,10 @@
 const { Model, ModelList, EventDispatcher } = require('@rsthn/rin');
 const Api = require('./api');
 
+/*
+**	Provides several methods to quickly interface with a remote data-source as defined by Wind.
+*/
+
 module.exports = EventDispatcher.extend
 ({
 	className: 'DataSource',
@@ -33,6 +37,11 @@ module.exports = EventDispatcher.extend
 	list: null,
 	enum: null,
 
+	/*
+	**	Constructs the data source with the specified optional `config` parameters, any of the properties of this object can be specified
+	**	in the config. Uses the given basePath as prefix for the `f` parameter for subsequent API operations, a basePath of `candies` will
+	**	result in calls to `candies.list`, `candies.count`, etc.
+	*/
 	__ctor: function (basePath, config)
 	{
 		this._super.EventDispatcher.__ctor();
@@ -82,7 +91,10 @@ module.exports = EventDispatcher.extend
 	},
 
 	/*
-	**	Refresh mode: order, filter, range or full.
+	**	Executes one or more API functions (depending on `includeCount`, `includeEnum` and `includeList` properties) to retrieve the
+	**	required data (uses debounce to prevent too-quick refreshes).
+	**
+	**	Refresh mode can be: order, filter, range or full.
 	*/
 	refresh: function (mode='full')
 	{
@@ -109,16 +121,17 @@ module.exports = EventDispatcher.extend
 	},
 
 	/*
-	**	Returns the details from an entry of the list, or runs a remote fetch if not found (or if `forced` is true). Returns a promise.
+	**	Searches for the item in `list` that matches the specified `fields` and sends it to the callback. If no item is found (or if `forced` is true),
+	**	a call to API function `.get` will be executed with the fields as request parameters. Returns a promise.
 	*/
-	fetch: function (params, forced=false)
+	fetch: function (fields, forced=false)
 	{
 		return new Promise((resolve, reject) =>
 		{
-			let item = forced == true ? null : this.list.find(params, true);
+			let item = forced == true ? null : this.list.find(fields, true);
 			if (!item)
 			{
-				this.fetchOne(params, (r) =>
+				this.fetchOne(fields, (r) =>
 				{
 					if (r && r.response == 200)
 					{
@@ -137,7 +150,8 @@ module.exports = EventDispatcher.extend
 	},
 
 	/*
-	**	Removes an item from the remote data source. Returns a promise.
+	**	Removes an item from the remote data source by executing the `.delete` API function, passes the given `fields` as request
+	**	parameters. Returns a promise.
 	*/
 	delete: function (params)
 	{
