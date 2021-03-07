@@ -14,10 +14,8 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-module.exports =
+const _ =
 {
-	rin: require('@rsthn/rin'),
-
 	Router: require('./router'),
 	Element: require('./element'),
 	Api: require('./api'),
@@ -25,3 +23,7 @@ module.exports =
 
 	Elements: require('./elements')
 };
+
+Object.assign(_, require('@rsthn/rin'));
+
+module.exports = _;

@@ -79,7 +79,7 @@ r-panel:not(.active) {
 # Methods
 
 ### void `show` (bool silent=false)
-Shows the panel visible by adding `active` class to the element. If `silent` is true and `data-route` enabled, the current route will be updated. Fires `panelShown` event.
+Shows the panel visible by adding `active` class to the element. If `silent` is true and `data-route` enabled, the current route will not be updated. Fires `panelShown` event.
 
 <br/>
 

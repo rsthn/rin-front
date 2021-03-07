@@ -89,6 +89,8 @@ Element.register ('r-select',
 		this.list.addEventListener (this.eid+':itemRemoved', this.onItemsChanged, this);
 		this.list.addEventListener (this.eid+':itemChanged', this.onItemsChanged, this);
 		this.list.addEventListener (this.eid+':itemAdded', this.onItemsChanged, this);
+
+		this.onItemsChanged();
 	},
 
 	/*
