@@ -89,10 +89,10 @@ Say we have a full-access data source named `candies`, the following are the API
 
 Used to create a new item in the dataset.
 
-### Request
+#### Request
 - **Form Parameters**: Fields required by the dataset to create a new item.
 
-### Response
+#### Response
 - Standard response.
 
 <br/>
@@ -101,11 +101,11 @@ Used to create a new item in the dataset.
 
 Used to update the details of a previously created item.
 
-### Request
+#### Request
 - **ID**: Parameter `id`, indicating the primary key of the item that the caller wishes to update.
 - **Form Parameters**: Fields required by the dataset to update an item.
 
-### Response
+#### Response
 - Standard response.
 
 <br/>
@@ -140,7 +140,7 @@ Used to obtain a list of items from the dataset that match certain filter.
 
 Used to retrieve the data of a single item from the dataset given its `id`.
 
-### Request
+#### Request
 - **Data Filters**: Zero or more filtering parameters, each of which should start with `f_` to differentiate them from standard parameters.
 - **ID**: Parameter `id`, indicating the primary key of the item that the caller wishes to retrieve.
 
@@ -153,11 +153,11 @@ Used to retrieve the data of a single item from the dataset given its `id`.
 
 Used to delete an item from a dataset given its `id`.
 
-### Request
+#### Request
 - **Data Filters**: Zero or more filtering parameters, each of which should start with `f_` to differentiate them from standard parameters.
 - **ID**: Parameter `id`, indicating the primary key of the item that the caller wishes to delete.
 
-### Response
+#### Response
 - Standard response.
 
 <br/>

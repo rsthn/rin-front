@@ -47,6 +47,8 @@ Indicates if `list` property should be populated from the `.list` API function. 
 
 Constructs the data source with the specified optional `config` parameters, any of the properties of this object can be specified in the config. Uses the given basePath as prefix for the `f` parameter for subsequent API operations, a basePath of `candies` will result in calls to `candies.list`, `candies.count`, etc.
 
+<br/>
+
 #### void `refresh` (string mode='full')
 
 Executes one or more API functions (depending on `includeCount`, `includeEnum` and `includeList` properties) to retrieve the required data (uses debounce to prevent too-quick refreshes).
@@ -68,6 +70,6 @@ Searches for the item in `list` that matches the specified `fields` and sends it
 
 <br/>
 
-### Promise `delete` (object fields)
+#### Promise `delete` (object fields)
 
 Removes an item from the remote data source by executing the `.delete` API function, passes the given `fields` as request parameters. Returns a promise.

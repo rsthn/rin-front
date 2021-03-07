@@ -7,10 +7,11 @@
 
 # Elements
 
-- [r-tabs](./docs/r-tabs.md)
-- [r-form](./docs/r-form.md)
-- [r-panel](./docs/r-panel.md)
-- [r-list](./docs/r-list.md)
-- [r-item](./docs/r-item.md)
-- [r-paginator](./docs/r-paginator.md)
-- [r-table](./docs/r-table.md)
+- [r-tabs](./elems/r-tabs.md)
+- [r-form](./elems/r-form.md)
+- [r-item](./elems/r-item.md)
+- [r-list](./elems/r-list.md)
+- [r-paginator](./elems/r-paginator.md)
+- [r-panel](./elems/r-panel.md)
+- [r-select](./elems/r-select.md)
+- [r-table](./elems/r-table.md)

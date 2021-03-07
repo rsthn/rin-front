@@ -15,25 +15,32 @@
 */
 
 /*
-	<r-tabs [data-container="div.tab-container"] [data-base-route="@"]>
-		<a data-name="home">Home</a>
-		<a data-name="users">Users</a>
-		<a data-name="products">Products</a>
-		<a data-name="account">Account</a>
+	<r-tabs data-container="div.tab-container" data-base-route="@" data-initial="tab1">
+		<a data-name="tab1">Tab-1</a>
+		<a data-name="tab2">Tab-2</a>
+		<a data-name="tab3">Tab-3</a>
 	</r-tabs>
 
 	<div class="tab-container">
-		<div data-name="home">
-			Home
+		<div data-name="tab1">
+			This is tab-1.
 		</div>
 
-		<div data-name="users">
-			Users
+		<div data-name="tab2">
+			This is tab-2.
+		</div>
+
+		<div data-name="tab3">
+			This is tab-3.
 		</div>
 	</div>
 
-	.tab-container > div.x-hidden {
+	.x-hidden {
 		display: none;
+	}
+
+	r-tabs [data-name].active {
+		font-weight: bold;
 	}
 */
 
@@ -71,7 +78,7 @@ Element.register ('r-tabs',
 			if (!args.route.changed)
 				return;
 
-			this._showTab (args.tabName);
+			this.showTab (args.tabName);
 		};
 	},
 
@@ -85,7 +92,7 @@ Element.register ('r-tabs',
 		else
 			this.container = this.nextElementSibling;
 
-		this._hideTabsExcept(null);
+		this._hideTabsExcept(this.dataset.initial);
 	},
 
 	/**
@@ -144,15 +151,15 @@ Element.register ('r-tabs',
 	},
 
 	/**
-	**	Shows the tab with the specified name.
+	**	Shows the tab with the specified name, ignores `data-base-route` and current route as well.
 	*/
-	_showTab: function (name)
+	showTab: function (name)
 	{
 		return this._hideTabsExcept (name);
 	},
 
 	/**
-	**	Selects a tab given its name.
+	**	Shows a tab given its name. The route will be changed automatically if `data-base-route` is enabled.
 	*/
 	selectTab: function (name)
 	{
@@ -167,6 +174,6 @@ Element.register ('r-tabs',
 			}
 		}
 
-		this._showTab (name);
+		this.showTab (name);
 	}
 });

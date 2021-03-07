@@ -17,12 +17,9 @@ const { Router } = rfront;
 #### string `location`
 Current relative location (everything after the hash symbol).
 
-<br/>
-
 #### array[string] `args`
 Current relative location as an array of elements (obtained by splitting the relative location by slash).
 
-<br/>
 <br/>
 
 ## Methods

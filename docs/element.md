@@ -1,6 +1,6 @@
 # Element
 
-Base class for custom elements. Provides support for model-triggered events, easy definition of handlers for events originated in self or child-elements, and several utility methods.
+Base class for custom elements. Provides support for model-triggered events, watchers, handlers for events originated in the element or child-elements, and several utility methods.
 
 ```js
 const { Element } = require('@rsthn/rin-front');
@@ -21,26 +21,26 @@ Say we want to make a simple `click-counter` element:
 ```js
 Element.register('click-counter',
 {
-	model: {
-		count: 0
-	},
+    model: {
+        count: 0
+    },
 
-	events: {
-		"click button": function() {
-			this.model.set('count', this.model.get('count') + 1);
-		}
-	},
+    events: {
+        "click button": function() {
+            this.model.set('count', this.model.get('count') + 1);
+        }
+    },
 
-	init: function()
-	{
-		this.setInnerHTML(`
-			<b data-watch="count">
-				You have clicked me [count] times.
-			</b>
+    init: function()
+    {
+        this.setInnerHTML(`
+            <b data-watch="count">
+                You have clicked me [count] times.
+            </b>
 
-			<button>Click</button>
-		`);
-	}
+            <button>Click</button>
+        `);
+    }
 });
 ```
 
@@ -56,6 +56,15 @@ And it will show a bold label with a button, which when clicked will increase a 
 
 <br/>
 
+## Attributes
+
+|Attribute|Description
+|---------|-----------
+|`data-ref`|Sets a reference to the element in the root. Useful to give a name to the element and be able to access it from the root.
+|`data-xref`|Sets a reference to the element in the global context (window). The element will be globally available given its name.
+
+<br/>
+
 ## Event Handlers
 
 Event handlers can be defined in either the `events` field, or right in the class itself (as a function) by prefixing the name with "event". In either case an `event-selector` string is required, that is, the **event name** followed by a **selector**.
@@ -67,12 +76,12 @@ Say we have a `test-elem` element, and we want to catch the **click** event on a
 ```js
 Element.register('test-elem',
 {
-	events: {
-		"click b.red": function (evt)
-		{
-			console.log("Element is => " + evt.source);
-		}
-	}
+    events: {
+        "click b.red": function (evt)
+        {
+            console.log("Element is => " + evt.source);
+        }
+    }
 });
 ```
 
@@ -81,9 +90,9 @@ Or the handler can be defined in the class as a function property, like this:
 ```js
 Element.register('test-elem',
 {
-	"event click b.red": function (evt)
-	{
-	}
+    "event click b.red": function (evt)
+    {
+    }
 });
 ```
 
@@ -134,83 +143,135 @@ Data model related to the element. Defaults to `null`.
 #### void `init` ()
 Initializes the element. Called after construction of the instance.
 
+<br/>
+
 #### void `ready` ()
 Executed when the children of the element are ready.
+
+<br/>
 
 #### void `rready` ()
 Executed after `ready` and after the root is also ready.
 
+<br/>
+
 #### object `getFieldByPath` (string path)
 Returns the value of a field given its path. Starts from `global` unless the first item in the path is `this`, in which case it will start from the element.
+
+<br/>
 
 #### Element `getRoot` ()
 Returns the root of the element (that is, the `root` property). If not set it will attempt to find the root first.
 
+<br/>
+
 #### Element `setModel` (Model model, bool update=true);
 Sets the model of the element and executes the `modelChanged` event handler (unless `update` is set to false).
+
+<br/>
 
 #### Model `getModel` ()
 Returns the model of the element. Added for symmetry only, exactly the same as accesing public property `model` of this class.
 
+<br/>
+
 #### Element `addClass` (string classString)
 Adds one or more CSS classes (separated by space) to the element.
+
+<br/>
 
 #### Element `removeClass` (string classString)
 Removes one or more CSS classes (separated by space) from the element.
 
+<br/>
+
 #### Element `setStyle` (string styleString)
 Sets one or more style properties to the element (separated by semi-colon).
+
+<br/>
 
 #### float `getWidth` (HTMLElement element)
 #### float `getWidth` ()
 Returns the width of the specified element (or of itself it none provided), uses `getBoundingClientRect`.
 
+<br/>
+
 #### float `getHeight` (HTMLElement element)
 #### float `getHeight` ()
 Returns the height of the specified element (or of itself it none provided), uses `getBoundingClientRect`.
+
+<br/>
 
 #### object `listen` ( string eventName, string selector, void handler (object evt) )
 #### object `listen` ( string eventName, void handler (object evt) )
 Listens for an event on elements matching the specified selector, returns an object with a single method `remove` used to remove the listener when it is no longer needed.
 
+<br/>
+
 #### void `dispatch` (string eventName, object args=null, bool bubbles=true)
 Dispatches a new event with the specified name and the given arguments.
+
+<br/>
 
 #### void `dispatchOn` (HTMLElement elem, string eventName, object args=null, bool bubbles=true)
 Dispatches a new event on the specified element with the given name and arguments (uses `CustomEvent`).
 
+<br/>
+
 #### void `setInnerHTML` (string value)
 Sets the innerHTML property of the element and runs some post set-content tasks.
+
+<br/>
 
 #### void `onCreated` ()
 Executed when the element is created and yet not attached to the DOM tree.
 
+<br/>
+
 #### void `onConnected` ()
 Executed when the element is attached to the DOM tree.
+
+<br/>
 
 #### void `onDisconnected` ()
 Executed when the element is no longer a part of the DOM tree.
 
+<br/>
+
 #### void `onRefAdded` (string name)
 Executed on the root element when a child element has `data-ref` attribute and it was added to it.
+
+<br/>
 
 #### void `onRefRemoved` (string name)
 Executed on the root element when a child element has `data-ref` attribute and it was removed from it.
 
+<br/>
+
 #### void `onModelChanged` (object evt, object args)
 Event handler invoked when the model has changed.
+
+<br/>
 
 #### void `onModelPropertyChanging` (object evt, object args)
 Event handler invoked when a property of the model is changing. Fields `name` and `value` can be found in the `args` object.
 
+<br/>
+
 #### void `onModelPropertyChanged` (object evt, object args)
 Event handler invoked when a property of the model has changed. Should be overriden only if required. Automatically triggers internal events named `propertyChanged.<propertyName>` and `propertyChanged`.
+
+<br/>
 
 #### void `onModelPropertyRemoved` (object evt, object args)
 Event handler invoked when a property of the model is removed. Field `name` can be found in the `args` object.
 
-#### Class `register` (string name, ...object protos)
+<br/>
+
+#### class `register` (string name, ...object protos)
 Registers a new custom element with the specified name. Extra functionality can be added with one or more prototypes, by default all elements also get the `Element` prototype. Note that the final prototypes of all registered elements are stored, and if you want to inherit another element's prototype just provide its name (string) in the protos argument list.
+
+<br/>
 
 #### void `expand` (string elementName, ...object protos)
 Expands an already created custom element with the specified prototype(s).

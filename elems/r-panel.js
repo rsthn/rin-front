@@ -18,8 +18,12 @@
 	<r-panel data-route="name">
 	</r-panel>
 
-	.panel:not(.active) {
-		display: none !important;
+	r-panel {
+		display: block;
+	}
+
+	r-panel:not(.active) {
+		display: none;
 	}
 
 */
@@ -30,17 +34,12 @@ let Router = require('../router');
 Element.register ('r-panel',
 {
 	/**
-	**	Element events.
-	*/
-	events:
-	{
-	},
-
-	/**
 	**	Initializes the element.
 	*/
 	init: function()
 	{
+		this.style.display = '';
+
 		// Executed then the panel route is activated.
 		this._onActivate = (evt, args) =>
 		{
@@ -72,7 +71,12 @@ Element.register ('r-panel',
 	onConnected: function()
 	{
 		if (this.dataset.route)
+		{
 			Router.addRoute (this.dataset.route, this._onActivate, this._onDeactivate);
+			this.classList.remove('active');
+		}
+		else
+			this.classList.add('active');
 	},
 
 	/**
@@ -85,7 +89,7 @@ Element.register ('r-panel',
 	},
 
 	/**
-	**	Hides the panel.
+	**	Hides the panel by removing the `active` class from the element. Fires `panelHidden` event.
 	*/
 	hide: function ()
 	{
@@ -94,11 +98,12 @@ Element.register ('r-panel',
 	},
 
 	/**
-	**	Makes the panel visible.
+	**	Shows the panel visible by adding `active` class to the element. If `silent` is true and `data-route` enabled, the
+	**	current route will be updated. Fires `panelShown` event.
 	*/
-	show: function (noHashChange=false)
+	show: function (silent=false)
 	{
-		if (this.dataset.route && !noHashChange)
+		if (this.dataset.route && !silent)
 		{
 			let hash = "#" + this.dataset.route;
 
