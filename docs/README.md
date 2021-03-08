@@ -7,11 +7,11 @@
 
 # Elements
 
-- [r-tabs](./elems/r-tabs.md)
-- [r-form](./elems/r-form.md)
-- [r-item](./elems/r-item.md)
-- [r-list](./elems/r-list.md)
-- [r-paginator](./elems/r-paginator.md)
-- [r-panel](./elems/r-panel.md)
-- [r-select](./elems/r-select.md)
-- [r-table](./elems/r-table.md)
+- [r-tabs](./elems/r-tabs.md) - Tabs element with router support.
+- [r-form](./elems/r-form.md) - Provides functionality to send forms using Api.
+- [r-item](./elems/r-item.md) - Generic item with support to be connected to any model.
+- [r-list](./elems/r-list.md) - Connects to a ModelList and renders its contents using a template.
+- [r-paginator](./elems/r-paginator.md) - Provides pagination functionality to any DataSource.
+- [r-panel](./elems/r-panel.md) - Content panel with router support.
+- [r-select](./elems/r-select.md) - Select box populated from a ModelList.
+- [r-table](./elems/r-table.md) - Connects to a DataSource and renders its contents as a table.
