@@ -12,7 +12,7 @@ const { Router } = rfront;
 
 <br/>
 
-## Properties
+# Properties
 
 #### string `location`
 Current relative location (everything after the hash symbol).
@@ -22,7 +22,7 @@ Current relative location as an array of elements (obtained by splitting the rel
 
 <br/>
 
-## Methods
+# Methods
 
 #### void `init` ()
 Initializes the router module. Note that most browsers do not trigger a `hashchange` event for a second time if you reload the page and you're already on some hash URL, ensure to call `refresh` just once after the page/app loads to force a hashchange event.

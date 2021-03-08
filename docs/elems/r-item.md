@@ -1,6 +1,6 @@
 # r-item
 
-Generic item with support to be connected to any model by using its `data-model` attribute, therefore making it useful when taking advantage of data watchers.
+Generic item with support to be connected to any model by using its `data-model` attribute, useful to take advantage of data watchers.
 
 |Attribute|Required|Description
 |---------|--------|-----------

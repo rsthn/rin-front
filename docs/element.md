@@ -12,7 +12,7 @@ const { Element } = rfront;
 
 <br/>
 
-## Definition
+# Usage
 
 Custom elements can be defined easily by using the `register` method of `Element`, after which it will be available to be used in HTML as any other element.
 
@@ -56,7 +56,7 @@ And it will show a bold label with a button, which when clicked will increase a 
 
 <br/>
 
-## Attributes
+# Attributes
 
 |Attribute|Description
 |---------|-----------
@@ -65,7 +65,7 @@ And it will show a bold label with a button, which when clicked will increase a 
 
 <br/>
 
-## Event Handlers
+# Event Handlers
 
 Event handlers can be defined in either the `events` field, or right in the class itself (as a function) by prefixing the name with "event". In either case an `event-selector` string is required, that is, the **event name** followed by a **selector**.
 
@@ -112,7 +112,7 @@ Therefore, if bubbling-up is desired, ensure to set `continuePropagation` to tru
 
 <br/>
 
-## Properties
+# Properties
 
 #### string `eid`
 
@@ -138,7 +138,7 @@ Data model related to the element. Defaults to `null`.
 
 <br/>
 
-## Methods
+# Methods
 
 #### void `init` ()
 Initializes the element. Called after construction of the instance.

@@ -49,9 +49,9 @@
 		}
 
 	Modifiers:
-		.x-empty			Show the element when there is no data in the table.
-		.x-not-empty 		Shows the element when there is data in the table.
-		[data-sort]			Orders the table by the specified column (detected only if inside thead).
+		.x-empty			Add to elements that should be shown only when there is no data in the data source.
+		.x-not-empty 		Add to elements that should be shown only when there is data in the data source.
+		[data-sort]			Added to th/td elements in thead, marks the column as sortable.
 */
 
 const { Rin, Template } = require('@rsthn/rin');
@@ -59,7 +59,7 @@ let Element = require('../element');
 let DataSource = require('../data-source');
 
 /*
-**	Connects to a DataSource and renders its contents.
+**	Connects to a DataSource and renders its contents as a table.
 */
 
 Element.register ('r-table',
@@ -112,7 +112,7 @@ Element.register ('r-table',
 	},
 
 	/*
-	**	Indicates if the table is empty. Elements having x-when-empty will be hidden.
+	**	Indicates if the table is empty. Elements having .x-not-empty will be hidden.
 	*/
 	setEmpty: function (value)
 	{
@@ -155,7 +155,7 @@ Element.register ('r-table',
 	},
 
 	/*
-	**	Event handler invoked when a property of the source request changes.
+	**	Event handler invoked when a property of the source request changes. The property is copied to the local model.
 	*/
 	onRequestPropertyChanged: function(evt, args)
 	{
@@ -173,7 +173,7 @@ Element.register ('r-table',
 	},
 
 	/*
-	**	Event handler invoked when a property of the model has changed.
+	**	Event handler invoked when a property of the model has changed. The property is copied to the data source request model.
 	*/
 	onModelPropertyChanged: function (evt, args)
 	{
@@ -301,5 +301,22 @@ Element.register ('r-table',
 			this.source.request.set('order', 'asc', true);
 			this.source.refresh('order');
 		}
+	},
+
+	/*
+	**	Refreshes the data source.
+	*/
+	refresh: function()
+	{
+		this.source.refresh('full');
+	},
+
+	/*
+	**	Clears (set to empty) the specified fields from the data source's request parameters.
+	*/
+	clear: function(args)
+	{
+		for (let i = 0; i < args.length; i++)
+			this.model.set(args[i], '');
 	}
 });

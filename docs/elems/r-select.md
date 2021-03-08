@@ -7,7 +7,7 @@ Operation is to create an actual `<select>` with the same attributes as the `r-s
 
 |Attribute|Required|Description
 |---------|--------|-----------
-|`data-list`|Required|Path to a ModelList<sup>1</sup> (such as the one provided by DataSource properties `list` and `enum`<sup>2</sup>).
+|`data-list`|Required|Path to a ModelList<sup>1</sup> object, such as the one provided by DataSource properties<sup>2</sup> `list` and `enum`.
 |`data-blank`|Optional|When specified, an empty value option will be added to the select as first option, with label set to the value of this attribute.
 
 <br/>

@@ -78,7 +78,7 @@ const Element = module.exports =
 			let opts = evt.source.dataset.action.split(' ');
 
 			if (opts[0] in this)
-				this[opts[0]] ({...evt.source.dataset, ...opts}, evt);
+				this[opts[0]] ({ ...evt.source.dataset, ...opts, length: opts.length }, evt);
 			else
 				evt.continuePropagation = true;
 		},
@@ -87,7 +87,7 @@ const Element = module.exports =
 			let opts = evt.source.dataset.enter.split(' ');
 
 			if (opts[0] in this)
-				this[opts[0]] ({...evt.source.dataset, ...opts}, evt);
+				this[opts[0]] ({ ...evt.source.dataset, ...opts, length: opts.length }, evt);
 			else
 				evt.continuePropagation = true;
 		}

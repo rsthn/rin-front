@@ -26,7 +26,6 @@
 
 		<input type="text" data-property="pageSize" />
 	</r-paginator>
-
 */
 
 const { Rin } = require('@rsthn/rin');
@@ -99,6 +98,7 @@ Element.register ('r-paginator',
 		this.source.includeCount = true;
 		this.updateOffset('full');
 
+		this.source.addEventListener (this.eid+':requestPropertyChanged', this.onRequestPropertyChanged, this);
 		this.source.addEventListener (this.eid+':countChanged', this.onCountChanged, this);
 		this.source.addEventListener (this.eid+':listItemRemoved', this.onItemRemoved, this);
 		this.source.addEventListener (this.eid+':listItemAdded', this.onItemAdded, this);
@@ -121,6 +121,35 @@ Element.register ('r-paginator',
 
 		if (mode && (_count != this.source.request.get('count') || _offset != this.source.request.get('offset')))
 			this.source.refresh(mode);
+	},
+
+	/*
+	**	Event handler invoked when a property of the source request changes. The property is copied to the local model.
+	*/
+	onRequestPropertyChanged: function(evt, args)
+	{
+		this.model.set(args.name, args.value);
+	},
+
+	/*
+	**	Event handler invoked when a property of the model has changed. The property is copied to the data source request model.
+	*/
+	onModelPropertyChanged: function (evt, args)
+	{
+		let special = [
+			'offsetStart',
+			'offsetEnd',
+			'count',
+			'offset',
+			'currentPageSize',
+			'pageSize'
+		];
+
+		if (special.indexOf(args.name) != -1)
+			return;
+
+		this.source.request.set(args.name, args.value);
+		this.source.refresh('filter');
 	},
 
 	/*
@@ -151,7 +180,7 @@ Element.register ('r-paginator',
 	},
 
 	/*
-	**	Action that moves to the previous page.
+	**	Moves to the previous page.
 	*/
 	prevPage: function()
 	{
@@ -166,7 +195,7 @@ Element.register ('r-paginator',
 	},
 
 	/*
-	**	Action that moves to the next page.
+	**	Moves to the next page.
 	*/
 	nextPage: function()
 	{
@@ -178,7 +207,7 @@ Element.register ('r-paginator',
 	},
 
 	/*
-	**	Action that moves to the first page.
+	**	Moves to the first page.
 	*/
 	firstPage: function()
 	{
@@ -187,7 +216,7 @@ Element.register ('r-paginator',
 	},
 
 	/*
-	**	Action that moves to the last page.
+	**	Moves to the last page.
 	*/
 	lastPage: function()
 	{
@@ -204,5 +233,14 @@ Element.register ('r-paginator',
 	refresh: function()
 	{
 		this.source.refresh('full');
+	},
+
+	/*
+	**	Clears (set to empty) the specified fields from the data source's request parameters.
+	*/
+	clear: function(args)
+	{
+		for (let i = 0; i < args.length; i++)
+			this.model.set(args[i], '');
 	}
 });

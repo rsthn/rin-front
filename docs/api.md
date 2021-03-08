@@ -12,7 +12,7 @@ const { Api } = rfront;
 
 <br/>
 
-## Properties
+# Properties
 
 #### string `apiUrl`
 Target URL for all the API requests. Set by calling `setEndPoint` (default is "/api").
@@ -22,7 +22,7 @@ Number of retries to execute each API call before giving up and invoking error h
 
 <br/>
 
-## Methods
+# Methods
 
 #### void `setEndPoint` (string apiUrl)
 Sets the API end-point URL address.
@@ -70,3 +70,9 @@ Similar to `apiCall` but forces a GET request.
 
 #### Promise `fetch` ( object params )
 Identical to `apiCall` but returns a promise.
+
+<br/>
+
+# Notes
+
+- When an API call is in progress, the root `html` element will get CSS class `.busy`, and this class will be removed when the call is completed. This feature can be used to create loading spinners.

@@ -15,13 +15,18 @@
 */
 
 /*
-	<r-form data-form-action="api-function-name" [data-strict="true|false"]>
+	<r-form data-form-action="api-function-name" [data-strict="true|false"] [data-errors-at=""]>
 		<input type="text" data-field="username"/>
 	</r-form>
 
-	.form .message.x-hidden {
-		display: none !important;
-	}
+r-form .message.x-hidden {
+    display: none;
+}
+
+r-form span.field-error {
+    display: block;
+    color: red;
+}
 */
 
 const { Rin } = require('@rsthn/rin');
@@ -60,6 +65,10 @@ Element.register ('r-form',
 	*/
 	ready: function()
 	{
+		let formElement = document.createElement('form');
+		formElement.append(...this.childNodes);
+		this.append(formElement);
+
 		let def = { };
 		let names = { };
 
@@ -108,7 +117,7 @@ Element.register ('r-form',
 		this.model.defaults = def;
 		this.model.reset();
 
-		this._clearMarkers();
+		this.clearMarkers();
 	},
 
 	/*
@@ -203,7 +212,7 @@ Element.register ('r-form',
 		return value;
 	},
 
-	_clearMarkers: function ()
+	clearMarkers: function ()
 	{
 		this.classList.remove('busy');
 
@@ -303,7 +312,7 @@ Element.register ('r-form',
 	reset: function (nsilent)
 	{
 		this.model.reset (nsilent);
-		this._clearMarkers();
+		this.clearMarkers();
 
 		if (nsilent === false)
 		{
@@ -324,7 +333,7 @@ Element.register ('r-form',
 		let f = this.dataset.formAction || this.formAction;
 		if (!f) return;
 
-		this._clearMarkers();
+		this.clearMarkers();
 
 		this.classList.add('busy');
 

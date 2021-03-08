@@ -12,7 +12,7 @@ const { DataSource } = rfront;
 
 <br/>
 
-## Properties
+# Properties
 
 #### int `debounceDelay`
 Delay in milliseconds to wait before actually executing a refresh. Useful to prevent refreshing the data source multiple times in a short period of time (default is 250ms).
@@ -40,7 +40,7 @@ Indicates if `list` property should be populated from the `.list` API function. 
 
 <br/>
 
-## Methods
+# Methods
 
 #### void `DataSource` (string basePath, object config)
 #### void `DataSource` (string basePath)

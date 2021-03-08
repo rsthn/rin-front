@@ -4,7 +4,7 @@ Below are the guidelines required to create a web service compliant with the beh
 
 <br/>
 
-## Requests
+# Requests
 
 - Requests can be sent with either HTTP method (GET or POST) to the API end-point with the `Content-Type` header set to `application/x-www-form-urlencoded` or `multipart/form-data` (if files are uploaded to the service).
 
@@ -12,7 +12,7 @@ Below are the guidelines required to create a web service compliant with the beh
 
 <br/>
 
-## Responses
+# Responses
 
 Returned always as JSON object (unless otherwise explicitly specified) with a mandatory integer field named `response` which indicates the response code. Standard response codes are:
 
@@ -28,7 +28,7 @@ Returned always as JSON object (unless otherwise explicitly specified) with a ma
 
 <br/>
 
-## Multi-Request Mode
+# Multi-Request Mode
 
 This mode can be used to run multiple requests (up to 16) in a single web-request. To use this feature use the `rpkg` parameter which is a list of semi-colon separated `id,data` pairs, where `id` is the name you want the response to have when returned, and `data` is the Base64 encoded request parameters.
 
@@ -66,7 +66,7 @@ Note that the result object contains the results of both calls identified respec
 
 <br/>
 
-## Data Sources
+# Data Sources
 
 A data source is a set of functions that provide access to a certain dataset (most commonly on a database). Usually named in plural for semantic consistency.
 
