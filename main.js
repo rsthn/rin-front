@@ -21,7 +21,8 @@ const _ =
 	Api: require('./api'),
 	DataSource: require('./data-source'),
 
-	Elements: require('./elements')
+	Elements: require('./elements'),
+	Easing: require('./easing')
 };
 
 Object.assign(_, require('@rsthn/rin'));

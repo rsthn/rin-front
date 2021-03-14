@@ -19,9 +19,11 @@ import _Element from './element.js';
 import _Api from './api.js';
 import _Elements from './elements.js';
 import _DataSource from './data-source.js';
+import _Easing from './easing.js';
 
 export const Router = _Router;
 export const Element = _Element;
 export const Api = _Api;
 export const DataSource = _DataSource;
 export const Elements = _Elements;
+export const Easing = _Easing;

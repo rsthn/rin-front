@@ -39,8 +39,8 @@ Changes the current location and optionally prevents triggering the hashchange e
 
 <br/>
 
-#### void `addRoute` ( string route, void onRoute (object evt, object args), void onUnroute (object evt) )
-#### void `addRoute` ( string route, void onRoute (object evt, object args) )
+#### Route `addRoute` ( string route, void onRoute (object evt, object args), void onUnroute (object evt) )
+#### Route `addRoute` ( string route, void onRoute (object evt, object args) )
 Adds the specified route to the routing map. When the specified route is detected, the `onRoute` handler will be called, and when the route exits `onUnroute` will be called.
 
 Routes can have capture specifiers, those are identifiers preceeded by a `:` symbol. For example a route of the form `/users/:user_id/view` will cause you to get a variable named `user_id` in your `args` parameter when the callback is executed, such that a location like `/users/12/view` will make your `args.user_id` to have the value of 12.

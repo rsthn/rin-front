@@ -115,7 +115,6 @@ const Element = module.exports =
 		}
 
 		this._mutationObserver = true;
-		this.init();
 
 		Object.keys(this._super).reverse().forEach(i =>
 		{
@@ -123,12 +122,13 @@ const Element = module.exports =
 				this._super[i].init();
 		});
 
+		this.init();
+
 		if (this.events)
 			this.bindEvents (this.events);
 
 		const ready = () =>
 		{
-			this.ready();
 			this.isReady = 1;
 
 			if ('model' in this.dataset)
@@ -142,6 +142,8 @@ const Element = module.exports =
 				if ('ready' in this._super[i])
 					this._super[i].ready();
 			});
+
+			this.ready();
 
 			this.collectWatchers();
 
@@ -351,7 +353,19 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	*/
 	addClass: function (classString)
 	{
-		classString.split(' ').forEach(i => this.classList.add(i.trim()));
+		if (!classString) return this;
+
+		classString.split(' ').forEach(i =>
+		{
+			i = i.trim();
+			if (!i) return;
+
+			if (i[0] == '-' || i[0] == '+')
+				this.classList[i[0] == '-' ? 'remove' : 'add'](i.substr(1));
+			else
+				this.classList.add(i);
+		});
+
 		return this;
 	},
 
@@ -360,7 +374,19 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 	*/
 	removeClass: function (classString)
 	{
-		classString.split(' ').forEach(i => this.classList.remove(i.trim()));
+		if (!classString) return this;
+
+		classString.split(' ').forEach(i =>
+		{
+			i = i.trim();
+			if (!i) return;
+
+			if (i[0] == '-' || i[0] == '+')
+				this.classList[i[0] == '-' ? 'remove' : 'add'](i.substr(1));
+			else
+				this.classList.remove(i);
+		});
+
 		return this;
 	},
 
@@ -1124,6 +1150,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 					{
 						if (this.dataset.ref)
 						{
+//console.log('REF ' + this.dataset.ref + ' FOR ' + root.tagName);//violet
 							root[this.dataset.ref] = this;
 							root.refs[this.dataset.ref] = this;
 						}

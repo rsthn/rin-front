@@ -30,32 +30,32 @@ let _Router = module.exports =
 		**	in the constructor.
 		*/
 		routeRegex: null,
-	
+
 		/*
 		**	Original route string value.
 		*/
 		value: null,
-	
+
 		/*
 		**	Map with the indices and the names of each paremeter obtained from the route expression.
 		*/
 		params: null,
-	
+
 		/*
 		**	Arguments string obtained from the last route dispatch. Used to check if the arguments changed.
 		*/
 		s_args: null,
-	
+
 		/*
 		**	Indicates if the route is active because of a past positive dispatch.
 		*/
 		active: false,
-	
+
 		/*
-		**	Indicates if the route is active because of a past positive dispatch.
+		**	Indicates if the params have changed since last event. Transition from inactive to active route will always set this value to true.
 		*/
 		changed: false,
-	
+
 		/*
 		**	Constructor of the route, the specified argument is a route expression.
 		**
@@ -66,7 +66,7 @@ let _Router = module.exports =
 			this._super.EventDispatcher.__ctor();
 			this._compileRoute (this.value = route);
 		},
-	
+
 		/*
 		**	Transforms the specified route expression into a regular expression and a set of parameter
 		**	names and stores them in the 'param' array.
@@ -76,7 +76,7 @@ let _Router = module.exports =
 		_compileRoute: function (route)
 		{
 			this.params = [];
-	
+
 			while (true)
 			{
 				var m = /:([!@A-Za-z0-9_-]+)/.exec(route);
@@ -85,10 +85,10 @@ let _Router = module.exports =
 				route = route.replace(m[0], '([^/]+)');
 				this.params.push (m[1]);
 			}
-	
+
 			this.routeRegex = '^' + route.replace(/##/g, '');
 		},
-	
+
 		/*
 		**	Adds a handler to the route dispatcher. The handler can be removed later using removeHandler and
 		**	specifying the same parameters. If unrouted boolean is specified the event to listen to will be
@@ -100,7 +100,7 @@ let _Router = module.exports =
 		{
 			this.addEventListener ((unrouted === true ? 'un' : '') + 'routed', handler, null);
 		},
-	
+
 		/*
 		**	Removes a handler from the route dispatcher.
 		**
@@ -110,7 +110,7 @@ let _Router = module.exports =
 		{
 			this.removeEventListener ((unrouted === true ? 'un' : '') + 'routed', handler, null);
 		},
-	
+
 		/*
 		**	Verifies if the specified route matches the internal route and if so dispatches a (depends on doUnroute parameter) "routed" or "unrouted" event with the
 		**	parameters obtained from the location to all attached handlers.
@@ -133,18 +133,17 @@ let _Router = module.exports =
 
 			var args = { route: this };
 			var str = '';
-	
+
 			for (var i = 0; i < this.params.length; i++)
 			{
 				args[this.params[i]] = matches[i+1];
 				str += '_' + matches[i+1];
 			}
-	
+
 			this.changed = str != this.s_args;
-	
-			this.dispatchEvent ('routed', args);
 			this.s_args = str;
-	
+
+			this.dispatchEvent ('routed', args);
 			this.active = true;
 		}
 	}),
@@ -232,6 +231,8 @@ let _Router = module.exports =
 		}
 		else
 			this.routes[route].addHandler (onRoute, false);
+
+		return this.routes[route];
 	},
 
 	/*

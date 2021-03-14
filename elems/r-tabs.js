@@ -49,6 +49,11 @@ let Router = require('../router');
 
 Element.register ('r-tabs',
 {
+	/*
+	**	Container element for tab content.
+	*/
+	container: null,
+
 	/**
 	**	Element events.
 	*/
@@ -119,27 +124,24 @@ Element.register ('r-tabs',
 	*/
 	_hideTabsExcept: function (exceptName)
 	{
-		if (this.container == null) return;
-
 		if (!exceptName) exceptName = '';
 
-		this.container.querySelectorAll(':scope > [data-name]').forEach(i =>
+		if (this.container != null)
 		{
-			if (i.dataset.name == exceptName)
+			this.container.querySelectorAll(':scope > [data-name]').forEach(i =>
 			{
-				if (i.classList.contains('x-hidden'))
-					this.dispatch('tab-activate', { name: i.dataset.name, el: i });
-
-				i.classList.remove('x-hidden');
-			}
-			else
-			{
-				if (!i.classList.contains('x-hidden'))
-					this.dispatch('tab-deactivate', { name: i.dataset.name, el: i });
-
-				i.classList.add('x-hidden');
-			}
-		});
+				if (i.dataset.name == exceptName)
+				{
+					i.classList.remove('x-hidden');
+					this.dispatch('tabShown', { name: i.dataset.name, el: i });
+				}
+				else
+				{
+					i.classList.add('x-hidden');
+					this.dispatch('tabHidden', { name: i.dataset.name, el: i });
+				}
+			});
+		}
 
 		this.querySelectorAll("[data-name]").forEach(link =>
 		{

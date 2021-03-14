@@ -34,6 +34,11 @@ let Router = require('../router');
 Element.register ('r-panel',
 {
 	/**
+	**	Route object used by this element.
+	*/
+	route: null,
+
+	/**
 	**	Initializes the element.
 	*/
 	init: function()
@@ -72,7 +77,7 @@ Element.register ('r-panel',
 	{
 		if (this.dataset.route)
 		{
-			Router.addRoute (this.dataset.route, this._onActivate, this._onDeactivate);
+			this.route = Router.addRoute (this.dataset.route, this._onActivate, this._onDeactivate);
 			this.classList.remove('active');
 		}
 		else
@@ -94,7 +99,7 @@ Element.register ('r-panel',
 	hide: function ()
 	{
 		this.classList.remove('active');
-		this.dispatch('panelHidden', { });
+		this.dispatch('panelHidden', { route: this.route });
 	},
 
 	/**
@@ -115,6 +120,6 @@ Element.register ('r-panel',
 		}
 
 		this.classList.add('active');
-		this.dispatch('panelShown', { });
+		this.dispatch('panelShown', { route: this.route });
 	}
 });

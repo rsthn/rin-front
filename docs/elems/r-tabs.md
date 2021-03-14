@@ -87,8 +87,8 @@ r-tabs [data-name].active {
 
 # Events
 
-### `tab-activate` { string name, HTMLElement el } 
-### `tab-deactivate` { string name, HTMLElement el }
+### `tabShown` { string name, HTMLElement el } 
+### `tabHidden` { string name, HTMLElement el }
 
 <br/>
 
