@@ -65,7 +65,7 @@ Element.register ('r-tabs',
 
 			if (this.dataset.baseRoute)
 			{
-				window.location = "#" + this.dataset.baseRoute.replace('@', evt.source.dataset.name);
+				location = "#" + Router.realLocation(this.dataset.baseRoute.replace('@', evt.source.dataset.name));
 				return;
 			}
 
@@ -167,11 +167,11 @@ Element.register ('r-tabs',
 	{
 		if (this.dataset.baseRoute)
 		{
-			const hash = "#" + this.dataset.baseRoute.replace('@', name);
+			const hash = "#" + Router.realLocation(this.dataset.baseRoute.replace('@', name));
 
-			if (window.location.hash != hash)
+			if (location.hash != hash)
 			{
-				window.location = hash;
+				location = hash;
 				return;
 			}
 		}

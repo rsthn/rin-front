@@ -96,8 +96,14 @@ module.exports = EventDispatcher.extend
 	**
 	**	Refresh mode can be: order, filter, range or full.
 	*/
-	refresh: function (mode='full')
+	refresh: function (mode='full', callback=null)
 	{
+		if (typeof(mode) == 'function')
+		{
+			callback = mode;
+			mode = 'full';
+		}
+
 		if (this._timeout)
 		{
 			clearTimeout(this._timeout);
@@ -108,14 +114,14 @@ module.exports = EventDispatcher.extend
 		{
 			this._timeout = null;
 
-			let n = (this.includeCount && (mode == 'full' || mode == 'filter')) + (this.includeEnum && (mode == 'full')) + this.includeList;
-			if (n > 1) Api.packageBegin();
+			//let n = (this.includeCount && (mode == 'full' || mode == 'filter')) + (this.includeEnum && (mode == 'full')) + this.includeList;
+			Api.packageBegin();
 
 			if (this.includeCount && (mode == 'full' || mode == 'filter')) this.fetchCount();
 			if (this.includeEnum && (mode == 'full')) this.fetchEnum();
 			if (this.includeList) this.fetchList();
 
-			if (n > 1) Api.packageEnd();
+			Api.packageEnd(callback);
 		},
 		this.debounceDelay);
 	},
@@ -136,12 +142,12 @@ module.exports = EventDispatcher.extend
 					if (r && r.response == 200)
 					{
 						if (r.data.length > 0)
-							resolve(r.data[0], r);
+							resolve(r.data[0]);
 						else
-							reject(null);
+							reject(r);
 					}
 					else
-						reject(r.error);
+						reject(r);
 				});
 			}
 			else

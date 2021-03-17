@@ -82,7 +82,7 @@ module.exports =
 	/**
 	**	Finishes "package-mode" and a single API request with the currently constructed package will be sent.
 	*/
-	packageEnd: function ()
+	packageEnd: function (callback)
 	{
 		if (!this._requestPackage)
 			return;
@@ -90,7 +90,7 @@ module.exports =
 		if (--this._requestPackage)
 			return;
 
-		this.packageSend();
+		this.packageSend(callback);
 	},
 
 	/**
@@ -106,7 +106,7 @@ module.exports =
 	/**
 	**	Sends a single API request with the currently constructed package and maintains package-mode.
 	*/
-	packageSend: function ()
+	packageSend: function (callback)
 	{
 		if (!this._packageData.length)
 			return;
@@ -148,6 +148,8 @@ module.exports =
 					catch (e) {
 					}
 				}
+
+				if (callback) callback();
 			},
 
 			(req) =>
@@ -248,7 +250,12 @@ module.exports =
 			data = new FormData();
 
 			for (let i in params)
-				data.append(i, params[i]);
+			{
+				if ((params[i] instanceof File) || (params[i] instanceof Blob))
+					data.append(i, params[i], params[i].name);
+				else
+					data.append(i, params[i]);
+			}
 		}
 
 		for (let i of data.entries())

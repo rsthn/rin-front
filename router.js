@@ -42,6 +42,11 @@ let _Router = module.exports =
 		params: null,
 
 		/*
+		**	Arguments obtained from the current route (uses `params` to determine name of arguments).
+		*/
+		args: null,
+
+		/*
 		**	Arguments string obtained from the last route dispatch. Used to check if the arguments changed.
 		*/
 		s_args: null,
@@ -76,6 +81,8 @@ let _Router = module.exports =
 		_compileRoute: function (route)
 		{
 			this.params = [];
+
+			route = route.replace(/\/\*\//g, '/.+/');
 
 			while (true)
 			{
@@ -143,7 +150,7 @@ let _Router = module.exports =
 			this.changed = str != this.s_args;
 			this.s_args = str;
 
-			this.dispatchEvent ('routed', args);
+			this.dispatchEvent ('routed', this.args = args);
 			this.active = true;
 		}
 	}),

@@ -152,6 +152,10 @@ Element.register ('r-table',
 		this.source.addEventListener (this.eid+':listItemRemoved', this.onItemRemoved, this);
 		this.source.addEventListener (this.eid+':listItemChanged', this.onItemChanged, this);
 		this.source.addEventListener (this.eid+':listItemAdded', this.onItemAdded, this);
+
+		this.source.setNamespace(this.eid);
+		this.source.request.update(true);
+		this.source.setNamespace(null);
 	},
 
 	/*

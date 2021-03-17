@@ -173,14 +173,6 @@ const Element = module.exports =
 			if (this.childNodes.length == 0)
 				return;
 
-			this.querySelectorAll('[data-_pending=true]').forEach(i =>
-			{
-				let root = this.findRoot(i.parentElement);
-				if (root !== this) return;
-
-				i.connectReference(this);
-			});
-
 			let is_ready = true;
 
 			this.querySelectorAll('[data-_custom]').forEach(i =>
@@ -215,21 +207,20 @@ const Element = module.exports =
 
 				for (let elem of this.querySelectorAll('[data-_pending=true]'))
 				{
-console.log('FOUND ELEMENT ' + elem.tagName);
+					let root = this.findRoot(elem.parentElement);
+					if (root !== this) continue;
+
 					if (elem.dataset._linked != 'true')
 					{
+//console.log('INIT ' + this.tagName + ' CONNECT ' + elem.tagName);//violet
 						this[elem.dataset.ref] = elem;
 						this.refs[elem.dataset.ref] = elem;
 
-						elem.dataset._linked = 'true';
-						elem.root = this;
-
-						this.onRefAdded (elem.dataset.ref);
+						elem.connectReference(this);
 					}
 				}
 
 				this._mutationHandler = null;
-
 				this._mutationObserver.disconnect();
 				this._mutationObserver = null;
 
@@ -1117,6 +1108,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 				while (elem != null)
 				{
+// if (this.dataset.ref) console.log(this.tagName + ' ' + this.dataset.ref + ' SEARCH ' + elem.tagName + ' , isRoot=' + elem.isRoot); //violet
 					if ('isRoot' in elem && elem.isRoot)
 						return elem;
 
@@ -1150,7 +1142,7 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 					{
 						if (this.dataset.ref)
 						{
-//console.log('REF ' + this.dataset.ref + ' FOR ' + root.tagName);//violet
+//console.log('>> REF ' + this.dataset.ref + ' FOR ' + root.tagName);//violet
 							root[this.dataset.ref] = this;
 							root.refs[this.dataset.ref] = this;
 						}
@@ -1330,3 +1322,23 @@ console.log('FOUND ELEMENT ' + elem.tagName);
 
 Element.register('r-elem', {
 });
+
+/* ****************************************** */
+
+/**
+**	Finds the parent element given a selector.
+*/
+HTMLElement.prototype.querySelectorParent = function (selector)
+{
+	let elem = this;
+
+	while (elem != null)
+	{
+		if (elem.matches(selector))
+			break;
+
+		elem = elem.parentElement;
+	}
+
+	return elem;
+};

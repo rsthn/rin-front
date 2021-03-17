@@ -53,9 +53,9 @@ Element.register ('r-list',
 	isDynamic: false,
 
 	/**
-	**	Initializes the element.
+	**	Executed when the children of the element are ready.
 	*/
-	init: function()
+	ready: function()
 	{
 		this.container = this.querySelector(this.dataset.container || '.x-data');
 		if (!this.container) this.container = this;

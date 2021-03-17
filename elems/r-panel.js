@@ -99,7 +99,7 @@ Element.register ('r-panel',
 	hide: function ()
 	{
 		this.classList.remove('active');
-		this.dispatch('panelHidden', { route: this.route });
+		this.dispatch('panelHidden', this.route ? this.route.args : { });
 	},
 
 	/**
@@ -120,6 +120,6 @@ Element.register ('r-panel',
 		}
 
 		this.classList.add('active');
-		this.dispatch('panelShown', { route: this.route });
+		this.dispatch('panelShown', this.route ? this.route.args : { });
 	}
 });
