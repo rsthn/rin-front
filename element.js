@@ -1081,7 +1081,7 @@ const Element = module.exports =
 	*/
 	register: function (name, ...protos)
 	{
-		var newElement = class extends HTMLElement
+		const newElement = class extends HTMLElement
 		{
 			constructor()
 			{
@@ -1210,6 +1210,11 @@ const Element = module.exports =
 		const _super = { };
 		const events = Rin.clone(Element.events);
 
+		let __init = true;
+		let __ready = true;
+		let __rready = true;
+		let __check;
+
 		for (let i = 0; i < protos.length; i++)
 		{
 			if (!protos[i]) continue;
@@ -1230,9 +1235,17 @@ const Element = module.exports =
 
 					_super[name][f] = protos[i][f];
 				}
+
+				__init = false;
+				__ready = false;
+				__rready = false;
+				__check = false;
 			}
 			else
+			{
 				Element.preparePrototype(protos[i]);
+				__check = true;
+			}
 
 			if ('_super' in protos[i])
 				Rin.override (_super, protos[i]._super);
@@ -1242,6 +1255,33 @@ const Element = module.exports =
 
 			Rin.override (newElement.prototype, protos[i]);
 			Rin.override (proto, protos[i]);
+
+			if (__check)
+			{
+				if (!__init && 'init' in protos[i]) __init = true;
+				if (!__ready && 'ready' in protos[i]) __ready = true;
+				if (!__rready && 'rready' in protos[i]) __rready = true;
+			}
+		}
+
+		let dummy = function(){};
+
+		if (!__init)
+		{
+			newElement.prototype.init = dummy;
+			proto.init = dummy;
+		}
+
+		if (!__ready)
+		{
+			newElement.prototype.ready = dummy;
+			proto.ready = dummy;
+		}
+
+		if (!__rready)
+		{
+			newElement.prototype.rready = dummy;
+			proto.rready = dummy;
 		}
 
 		newElement.prototype._super = _super;
@@ -1292,7 +1332,45 @@ const Element = module.exports =
 		elem.prototype.events = events;
 
 		self._super = _super;
-		self.events = _super;
+		self.events = events;
+	},
+
+	/*
+	**	Appends a hook to a function of a custom element.
+	*/
+	hookAppend: function (name, functionName, newFunction)
+	{
+		if (!(name in elementPrototypes))
+			return;
+
+		let hook1 = Rin.hookAppend(elementPrototypes[name], functionName, newFunction);
+		let hook2 = Rin.hookAppend(elementClasses[name].prototype, functionName, newFunction);
+
+		return { 
+			unhook: function() {
+				hook1.unhook();
+				hook2.unhook();
+			}
+		};
+	},
+
+	/*
+	**	Prepends a hook to a function of a custom element.
+	*/
+	hookPrepend: function (name, functionName, newFunction)
+	{
+		if (!(name in elementPrototypes))
+			return;
+
+		let hook1 = Rin.hookPrepend(elementPrototypes[name], functionName, newFunction);
+		let hook2 = Rin.hookPrepend(elementClasses[name].prototype, functionName, newFunction);
+
+		return { 
+			unhook: function() {
+				hook1.unhook();
+				hook2.unhook();
+			}
+		};
 	},
 
 	/**

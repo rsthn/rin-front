@@ -119,8 +119,8 @@ Element.register ('r-tabs',
 	},
 
 	/**
-	**	Hides all tabs except the one with the specified exceptName, if none specified then all tabs will be hidden (adds .x-hidden CSS class),
-	**	additionally the respective link item in the tab definition will have class 'active'.
+	**	Hides all tabs except the one with the specified exceptName (will get .active CSS class), if none specified then all tabs will be
+	**	hidden (adds .x-hidden CSS class), additionally the respective link item in the tab definition will have class 'active'.
 	*/
 	_hideTabsExcept: function (exceptName)
 	{
@@ -133,11 +133,13 @@ Element.register ('r-tabs',
 				if (i.dataset.name == exceptName)
 				{
 					i.classList.remove('x-hidden');
+					i.classList.add('active');
 					this.dispatch('tabShown', { name: i.dataset.name, el: i });
 				}
 				else
 				{
 					i.classList.add('x-hidden');
+					i.classList.remove('active');
 					this.dispatch('tabHidden', { name: i.dataset.name, el: i });
 				}
 			});
