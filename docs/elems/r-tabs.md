@@ -19,10 +19,6 @@ Tab selection is done by locating an immediate children of the `container` havin
     display: none;
 }
 
-.x-active {
-    display: block;
-}
-
 r-tabs [data-name].active {
     font-weight: bold;
 }

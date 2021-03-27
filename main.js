@@ -20,9 +20,9 @@ const _ =
 	Element: require('./element'),
 	Api: require('./api'),
 	DataSource: require('./data-source'),
-
 	Elements: require('./elements'),
-	Easing: require('./easing')
+	Easing: require('./easing'),
+	Anim: require('./anim')
 };
 
 Object.assign(_, require('@rsthn/rin'));

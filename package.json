@@ -1,6 +1,6 @@
 {
     "name": "@rsthn/rin-front",
-    "version": "1.0.26",
+    "version": "1.0.27",
     "description": "Rin Front-End Library",
     "main": "main.js",
     "exports": {
@@ -32,7 +32,7 @@
         "since 2019-01"
     ],
     "files": [
-		"dist/",
+        "dist/",
         "elems/",
         "*.js",
         "*.mjs",

@@ -15,7 +15,7 @@
 */
 
 /**
-**	Collection of useful easing functions.
+**	Collection of useful easing functions (imported from Cherry source code).
 */
 
 const Easing = module.exports =

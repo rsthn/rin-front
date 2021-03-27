@@ -328,7 +328,12 @@ Element.register ('r-form',
 		if (this.classList.contains('busy'))
 			return;
 
-		let data = this.model.get(this.dataset.strict == 'false' ? false : true);
+		let data = { };
+
+		if (this.dataset.strict == 'false')
+			Object.assign(data, this.model.get());
+
+		this.querySelectorAll('[data-field]').forEach(f => data[f.dataset.field] = this._getField(f));
 
 		let f = this.dataset.formAction || this.formAction;
 		if (!f) return;

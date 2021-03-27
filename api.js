@@ -237,7 +237,6 @@ module.exports =
 		{
 			credentials: 'include',
 			headers: {
-				//'Content-Type': 'application/x-www-form-urlencoded',
 				'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9',
 			},
 			method: httpMethod,
@@ -263,7 +262,6 @@ module.exports =
 			if ((i[1] instanceof File) || (i[1] instanceof Blob))
 			{
 				options.method = 'POST';
-				//options.headers['Content-Type'] = 'multipart/form-data';
 				options.multipart = true;
 				break;
 			}
@@ -301,7 +299,10 @@ module.exports =
 		else
 		{
 			if (!options.multipart)
+			{
+				options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 				options.body = this.encodeParams(data);
+			}
 			else
 				options.body = data;
 		}

@@ -36,7 +36,7 @@ Element.register ('r-item',
 	rready: function()
 	{
 		let model = this.getFieldByPath(this.dataset.model);
-		if (!model) return;
+		if (!model) model = { };
 
 		this.setModel (model);
 	}
