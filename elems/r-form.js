@@ -190,26 +190,47 @@ Element.register ('r-form',
 		}
 	},
 
-	_getField: function (f)
+	_getField: function (f, _value=null)
 	{
-		let value = f.value == null ? f.dataset.value : f.value;
+		if (!f) return null;
 
-		switch (f.type || f.tagName.toLowerCase())
+		if (typeof(f) != 'string')
 		{
-			case 'select':
-				value = f.multiple ? (value ? value.join(',') : value) : value;
-				break;
+			let value = f.value == null ? f.dataset.value : f.value;
+			if (value === null) value = _value;
 
-			case 'checkbox':
-				value = f.checked ? '1' : '0';
-				break;
+			switch (f.type || f.tagName.toLowerCase())
+			{
+				case 'select':
+					_value = f.multiple ? (value ? value.join(',') : value) : value;
+					break;
 
-			case 'file':
-				value = f.files && f.files.length ? (f.multiple ? f.files : f.files[0]) : null;
-				break;
+				case 'checkbox':
+					_value = f.checked ? '1' : '0';
+					break;
+
+				case 'radio':
+					if (f.checked) _value = f.value;
+					break;
+
+				case 'file':
+					_value = f.files && f.files.length ? (f.multiple ? f.files : f.files[0]) : null;
+					break;
+
+				default:
+					_value = value;
+					break;
+			}
+
+			return _value === null ? '' : _value;
 		}
 
-		return value;
+		_value = null;
+
+		for (f of this.querySelectorAll('[data-field="'+f+'"]'))
+			_value = this._getField(f, _value);
+
+		return _value === null ? '' : _value;
 	},
 
 	clearMarkers: function ()
@@ -233,6 +254,11 @@ Element.register ('r-form',
 			this.model.set (f.dataset.field, this._getField(f));
 
 		evt.continuePropagation = true;
+	},
+
+	onModelPropertyChanged: function (evt, args)
+	{
+		this._setField (args.name, args.value);
 	},
 
 	_onSuccess: function(r)
@@ -304,11 +330,6 @@ Element.register ('r-form',
 		}
 	},
 
-	onModelPropertyChanged: function (evt, args)
-	{
-		this._setField (args.name, args.value);
-	},
-
 	reset: function (nsilent)
 	{
 		this.model.reset (nsilent);
@@ -333,7 +354,11 @@ Element.register ('r-form',
 		if (this.dataset.strict == 'false')
 			Object.assign(data, this.model.get());
 
-		this.querySelectorAll('[data-field]').forEach(f => data[f.dataset.field] = this._getField(f));
+		let list = { };
+		this.querySelectorAll('[data-field]').forEach(e => list[e.dataset.field] = true);
+		Object.keys(list).forEach(f => data[f] = this._getField(f));
+
+		this.model.set(data);
 
 		let f = this.dataset.formAction || this.formAction;
 		if (!f) return;
