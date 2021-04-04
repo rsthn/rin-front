@@ -60,7 +60,7 @@ Element.register ('r-list',
 		this.container = this.querySelector(this.dataset.container || '.x-data');
 		if (!this.container) this.container = this;
 
-		let tmp = this.querySelector('template');
+		let tmp = this.template_elem = this.querySelector('template');
 
 		if (tmp)
 		{
@@ -154,6 +154,14 @@ Element.register ('r-list',
 			i.model = data;
 			i.dataset.model = "this.model";
 		});
+
+		for (let attr of this.template_elem.attributes)
+		{
+			if (attr.nodeName.startsWith('data-_') || attr.nodeName == 'data-mode')
+				continue;
+
+			elem.setAttribute(attr.nodeName, attr.nodeValue);
+		}
 
 		return elem;
 	},

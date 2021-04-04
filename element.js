@@ -946,7 +946,7 @@ const Element = module.exports =
 		for (let i = 0; i < this._list_visible.length; i++)
 		{
 			if (this._list_visible[i]._visible(data, 'arg'))
-				this._list_visible[i].style.display = 'block';
+				this._list_visible[i].style.removeProperty('display');
 			else
 				this._list_visible[i].style.display = 'none';
 		}
@@ -957,20 +957,21 @@ const Element = module.exports =
 	/**
 	**	Event handler invoked when the model has changed.
 	*/
-	onModelChanged: function (evt, args)
+	onModelChanged: function (evt, args) // @override
 	{
 	},
 
 	/**
 	**	Event handler invoked when a property of the model is changing. Fields `name` and `value` can be found in the `args` object.
 	*/
-	onModelPropertyChanging: function (evt, args)
+	onModelPropertyChanging: function (evt, args) // @override
 	{
 	},
 
 	/**
 	**	Event handler invoked when a property of the model has changed, executed before onModelPropertyChanged() to update internal
-	**	dependencies, should not be overriden or elements depending on the property will not be updated.
+	**	dependencies. Automatically triggers internal events named `propertyChanged.<propertyName>` and `propertyChanged`.
+	**	Should not be overriden or elements depending on the property will not be updated.
 	*/
 	onModelPropertyPreChanged: function (evt, args)
 	{
@@ -1027,22 +1028,23 @@ const Element = module.exports =
 			}
 		}
 
+		this.dispatch ('propertyChanged.' + args.name, args, false);
+		this.dispatch ('propertyChanged', args, false);
+
 		this.onModelPropertyChanged(evt, args);
 	},
 
 	/**
-	**	Event handler invoked when a property of the model has changed. Should be overriden only if required. Automatically triggers internal events named `propertyChanged.<propertyName>` and `propertyChanged`.
+	**	Event handler invoked when a property of the model has changed.
 	*/
-	onModelPropertyChanged: function (evt, args)
+	onModelPropertyChanged: function (evt, args) // @override
 	{
-		this.dispatch ('propertyChanged.' + args.name, args, false);
-		this.dispatch ('propertyChanged', args, false);
 	},
 
 	/**
 	**	Event handler invoked when a property of the model is removed. Field `name` can be found in the `args` object.
 	*/
-	onModelPropertyRemoved: function (evt, args)
+	onModelPropertyRemoved: function (evt, args) // @override
 	{
 	},
 

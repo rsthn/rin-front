@@ -52,13 +52,10 @@ Element.register ('r-form',
 		'submit form': 'submit'
 	},
 
-	/**
-	**	Initializes the form element.
+	/*
+	**	Initial form model.
 	*/
-	init: function()
-	{
-		this.setModel({ });
-	},
+	model: { },
 
 	/**
 	**	Executed when the children of the element are ready.
@@ -70,7 +67,7 @@ Element.register ('r-form',
 		this.append(formElement);
 
 		let def = { };
-		let names = { };
+		let names = this.model.get();
 
 		this.querySelectorAll("[data-field]").forEach((i) =>
 		{
@@ -149,8 +146,8 @@ Element.register ('r-form',
 			switch (f.type || f.tagName.toLowerCase())
 			{
 				case 'select':
-					f.dataset.value = f.multiple ? (value ? value.split(',') : value) : value;
-					f.value = f.dataset.value;
+					f.val = f.dataset.value = f.multiple ? (value ? value.split(',') : value) : value;
+					f.value = f.val = f.dataset.value;
 
 					if (silent !== true) this._change(f);
 					break;
@@ -166,22 +163,24 @@ Element.register ('r-form',
 				case 'file':
 					if ((value instanceof File) || (value instanceof Blob))
 					{
+						f.val = value;
 						f.dataset.value = value;
 					}
 					else if (value instanceof FileList)
 					{
+						f.val = value;
 						f.dataset.value = value;
 					}
 					else
 					{
-						f.dataset.value = '';
+						f.val = f.dataset.value = '';
 						f.value = '';
 					}
 
 					break;
 
 				default:
-					f.dataset.value = value;
+					f.val = f.dataset.value = value;
 					f.value = value;
 
 					if (silent !== true) this._change(f);
@@ -190,13 +189,13 @@ Element.register ('r-form',
 		}
 	},
 
-	_getField: function (f, _value=null)
+	_getField: function (f, _value=null, fromFileFields=false)
 	{
 		if (!f) return null;
 
 		if (typeof(f) != 'string')
 		{
-			let value = f.value == null ? f.dataset.value : f.value;
+			let value = f.value == null ? f.val : f.value;
 			if (value === null) value = _value;
 
 			switch (f.type || f.tagName.toLowerCase())
@@ -214,7 +213,7 @@ Element.register ('r-form',
 					break;
 
 				case 'file':
-					_value = f.files && f.files.length ? (f.multiple ? f.files : f.files[0]) : null;
+					_value = fromFileFields ? (f.files && f.files.length ? (f.multiple ? f.files : f.files[0]) : null) : f.val;
 					break;
 
 				default:
@@ -233,6 +232,11 @@ Element.register ('r-form',
 		return _value === null ? '' : _value;
 	},
 
+	getField: function (name)
+	{
+		return this._getField(name);
+	},
+
 	clearMarkers: function ()
 	{
 		this.classList.remove('busy');
@@ -249,7 +253,7 @@ Element.register ('r-form',
 		let f = evt.source;
 
 		if (f.type == 'file')
-			this.model.set (f.dataset.field, this._getField(f), true);
+			this.model.set (f.dataset.field, this._getField(f, null, true), true);
 		else
 			this.model.set (f.dataset.field, this._getField(f));
 

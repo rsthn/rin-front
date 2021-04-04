@@ -49,7 +49,7 @@ module.exports = EventDispatcher.extend
 		this.basePath = basePath;
 		this.request = new Model();
 
-		if (config) Rin.override(this, config);
+		if (config) Object.assign(this, config);
 
 		this.eid = Math.random().toString().substr(2);
 		this.count = 0;
