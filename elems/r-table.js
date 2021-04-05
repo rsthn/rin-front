@@ -181,7 +181,19 @@ Element.register ('r-table',
 	*/
 	onModelPropertyChanged: function (evt, args)
 	{
+		if (this.source.request.get(args.name) == args.value)
+			return;
+
 		this.source.request.set(args.name, args.value);
+
+		let ignored = [
+			'count',
+			'offset'
+		];
+
+		if (ignored.indexOf(args.name) != -1)
+			return;
+
 		this.source.refresh('filter');
 	},
 

@@ -15,7 +15,7 @@
 */
 
 /*
-	<r-list data-list="window.dataList1" data-container=".x-data">
+	<r-list data-list="window.dataList1" data-container=".x-data" data-dynamic="false">
 
 		<template data-mode="static|dynamic">
 		</template>
@@ -50,7 +50,7 @@ Element.register ('r-list',
 	container: null,
 	template: null,
 	isEmpty: false,
-	isDynamic: false,
+	isDynamicTemplate: false,
 
 	/**
 	**	Executed when the children of the element are ready.
@@ -71,7 +71,7 @@ Element.register ('r-list',
 			else
 			{
 				this.template = () => tmp.innerHTML;
-				this.isDynamic = true;
+				this.isDynamicTemplate = true;
 			}
 
 			tmp.remove();
@@ -143,12 +143,15 @@ Element.register ('r-list',
 	/*
 	**	Builds an item (inside a div) to be added to the container.
 	*/
-	buildItem: function (iid, data)
+	buildItem: function (iid, data, asHtml=false)
 	{
+		let html = this.template(data.get());
+		if (asHtml) return html;
+
 		let elem = document.createElement('div');
 		
 		elem.dataset.iid = iid;
-		elem.innerHTML = this.template(data.get());
+		elem.innerHTML = html;
 
 		elem.querySelectorAll('[data-model=":list-item"]').forEach(i => {
 			i.model = data;
@@ -169,7 +172,7 @@ Element.register ('r-list',
 	/*
 	**	Executed when the list is cleared.
 	*/
-	onItemsCleared: function(evt, args)
+	onItemsCleared: function()
 	{
 		this.container._timeout = setTimeout(() => {
 			this.setEmpty(true);
@@ -181,7 +184,7 @@ Element.register ('r-list',
 	/*
 	**	Executed when the items of the list changed.
 	*/
-	onItemsChanged: function(evt, args)
+	onItemsChanged: function()
 	{
 		if (this.list.length() == 0)
 			return;
@@ -195,7 +198,12 @@ Element.register ('r-list',
 		let i = 0;
 
 		for (let data of this.list.getData())
-			this.container.append(this.buildItem(this.list.itemId[i++], data));
+		{
+			if (this.dataset.dynamic == 'true')
+				this.container.append(this.buildItem(this.list.itemId[i++], data));
+			else
+				this.container.innerHTML += this.buildItem(this.list.itemId[i++], data, true);
+		}
 
 		this.setEmpty(i == 0);
 	},
@@ -205,6 +213,12 @@ Element.register ('r-list',
 	*/
 	onItemRemoved: function(evt, args)
 	{
+		if (this.dataset.dynamic != 'true')
+		{
+			this.onItemsChanged();
+			return;
+		}
+
 		let elem = this.container.querySelector('[data-iid="'+args.id+'"]');
 		if (!elem) return;
 
@@ -217,7 +231,13 @@ Element.register ('r-list',
 	*/
 	onItemChanged: function(evt, args)
 	{
-		if (this.isDynamic) return;
+		if (this.isDynamicTemplate) return;
+
+		if (this.dataset.dynamic != 'true')
+		{
+			this.onItemsChanged();
+			return;
+		}
 
 		let elem = this.container.querySelector('[data-iid="'+args.id+'"]');
 		if (!elem) return;
@@ -231,9 +251,19 @@ Element.register ('r-list',
 	onItemAdded: function(evt, args)
 	{
 		if (args.position == 'head')
-			this.container.prepend(this.buildItem(args.id, args.item));
+		{
+			if (this.dataset.dynamic == 'true')
+				this.container.prepend(this.buildItem(args.id, args.item));
+			else
+				this.container.innerHTML = this.buildItem(args.id, args.item, true) + this.container.innerHTML;
+		}
 		else
-			this.container.append(this.buildItem(args.id, args.item));
+		{
+			if (this.dataset.dynamic == 'true')
+				this.container.append(this.buildItem(args.id, args.item));
+			else
+				this.container.innerHTML += this.buildItem(args.id, args.item, true);
+		}
 
 		this.setEmpty(false);
 	}

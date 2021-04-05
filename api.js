@@ -96,11 +96,11 @@ module.exports =
 	/**
 	**	Starts package-mode, executes the callback and finishes package-mode. Therefore any requests made by the callback will be packed together.
 	*/
-	packRequests: function (callback)
+	packRequests: function (callback, responseCallback=null)
 	{
 		this.packageBegin();
 		callback();
-		this.packageEnd();
+		this.packageEnd(responseCallback);
 	},
 
 	/**
@@ -126,6 +126,8 @@ module.exports =
 
 			(res, req) =>
 			{
+				this._hideProgress();
+
 				for (let i = 0; i < _packageData.length; i++)
 				{
 					try
@@ -154,6 +156,8 @@ module.exports =
 
 			(req) =>
 			{
+				this._hideProgress();
+
 				for (let i = 0; i < _packageData.length; i++)
 				{
 					if (_packageData[i][1] != null) _packageData[i][1] (_packageData[i][2]);

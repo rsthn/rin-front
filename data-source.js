@@ -47,9 +47,10 @@ module.exports = EventDispatcher.extend
 		this._super.EventDispatcher.__ctor();
 
 		this.basePath = basePath;
-		this.request = new Model();
 
 		if (config) Object.assign(this, config);
+
+		this.request = new Model(this.request);
 
 		this.eid = Math.random().toString().substr(2);
 		this.count = 0;
@@ -94,7 +95,7 @@ module.exports = EventDispatcher.extend
 	**	Executes one or more API functions (depending on `includeCount`, `includeEnum` and `includeList` properties) to retrieve the
 	**	required data (uses debounce to prevent too-quick refreshes).
 	**
-	**	Refresh mode can be: order, filter, range or full.
+	**	Refresh mode can be: order, filter, range or full. Setting `mode` to `true` will cause a full refresh without debouncing.
 	*/
 	refresh: function (mode='full', callback=null)
 	{
@@ -110,11 +111,10 @@ module.exports = EventDispatcher.extend
 			this._timeout = null;
 		}
 
-		this._timeout = setTimeout(() =>
+		const fn = () =>
 		{
 			this._timeout = null;
 
-			//let n = (this.includeCount && (mode == 'full' || mode == 'filter')) + (this.includeEnum && (mode == 'full')) + this.includeList;
 			Api.packageBegin();
 
 			if (this.includeCount && (mode == 'full' || mode == 'filter')) this.fetchCount();
@@ -122,8 +122,15 @@ module.exports = EventDispatcher.extend
 			if (this.includeList) this.fetchList();
 
 			Api.packageEnd(callback);
-		},
-		this.debounceDelay);
+		};
+
+		if (mode === true)
+		{
+			mode = 'full';
+			fn();
+		}
+		else
+			this._timeout = setTimeout(fn, this.debounceDelay);
 	},
 
 	/*

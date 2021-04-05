@@ -96,12 +96,16 @@ Element.register ('r-paginator',
 		this.source = source;
 
 		this.source.includeCount = true;
-		this.updateOffset('full');
+		this.updateOffset();
 
 		this.source.addEventListener (this.eid+':requestPropertyChanged', this.onRequestPropertyChanged, this);
 		this.source.addEventListener (this.eid+':countChanged', this.onCountChanged, this);
 		this.source.addEventListener (this.eid+':listItemRemoved', this.onItemRemoved, this);
 		this.source.addEventListener (this.eid+':listItemAdded', this.onItemAdded, this);
+
+		this.source.setNamespace(this.eid);
+		this.source.request.update(true);
+		this.source.setNamespace(null);
 	},
 
 	/*
@@ -136,7 +140,7 @@ Element.register ('r-paginator',
 	*/
 	onModelPropertyChanged: function (evt, args)
 	{
-		let special = [
+		let ignored = [
 			'offsetStart',
 			'offsetEnd',
 			'count',
@@ -145,7 +149,10 @@ Element.register ('r-paginator',
 			'pageSize'
 		];
 
-		if (special.indexOf(args.name) != -1)
+		if (ignored.indexOf(args.name) != -1)
+			return;
+
+		if (this.source.request.get(args.name) == args.value)
 			return;
 
 		this.source.request.set(args.name, args.value);
