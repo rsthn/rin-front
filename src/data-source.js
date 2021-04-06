@@ -14,14 +14,14 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-const { Model, ModelList, EventDispatcher } = require('@rsthn/rin');
-const Api = require('./api');
+import { Model, ModelList, EventDispatcher } from '@rsthn/rin';
+import Api from './api.js';
 
 /*
 **	Provides several methods to quickly interface with a remote data-source as defined by Wind.
 */
 
-module.exports = EventDispatcher.extend
+export default EventDispatcher.extend
 ({
 	className: 'DataSource',
 	debounceDelay: 250,

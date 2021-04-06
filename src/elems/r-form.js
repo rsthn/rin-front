@@ -1,5 +1,5 @@
 /*
-**	rin-front/elems/r-form
+**	elems/r-form
 **
 **	Copyright (c) 2019-2020, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -15,9 +15,9 @@
 */
 
 /*
-	<r-form data-form-action="api-function-name" [data-strict="true|false"] [data-errors-at=""]>
-		<input type="text" data-field="username"/>
-	</r-form>
+<r-form data-form-action="api-function-name" [data-strict="true|false"] [data-errors-at=""]>
+	<input type="text" data-field="username"/>
+</r-form>
 
 r-form .message.x-hidden {
     display: none;
@@ -29,12 +29,10 @@ r-form span.field-error {
 }
 */
 
-const { Rin } = require('@rsthn/rin');
+import Element from '../element.js';
+import Api from '../api.js';
 
-const Element = require('../element');
-const Api = require('../api');
-
-Element.register ('r-form',
+export default Element.register ('r-form',
 {
 	/**
 	**	Element events.

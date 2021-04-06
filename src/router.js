@@ -14,14 +14,14 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-const { EventDispatcher } = require('@rsthn/rin');
+import { EventDispatcher } from '@rsthn/rin';
 
 /*
 **	The Router is a special module that detects local URL changes (when a hash-change occurs) and
 **	forwards events to the appropriate handlers.
 */
 
-let _Router = module.exports =
+const _Router =
 {
 	Route: EventDispatcher.extend
 	({
@@ -423,3 +423,5 @@ let _Router = module.exports =
 };
 
 _Router.init();
+
+export default _Router;

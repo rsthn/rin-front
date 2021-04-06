@@ -1,5 +1,5 @@
 /*
-**	rin-front/elems/r-paginator
+**	elems/r-paginator
 **
 **	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -28,15 +28,15 @@
 	</r-paginator>
 */
 
-const { Rin } = require('@rsthn/rin');
-let Element = require('../element');
-let DataSource = require('../data-source');
+import { Rin } from '@rsthn/rin';
+import Element from '../element.js';
+import DataSource from '../data-source.js';
 
 /*
 **	Connects to a data source to provide pagination features.
 */
 
-Element.register ('r-paginator',
+export default Element.register ('r-paginator',
 {
 	source: null,
 	template: null,

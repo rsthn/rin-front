@@ -1,21 +1,16 @@
 {
     "name": "@rsthn/rin-front",
-    "version": "1.0.29",
+    "version": "1.0.30",
     "description": "Rin Front-End Library",
-    "main": "main.js",
-    "exports": {
-        ".": {
-            "require": "./main.js",
-            "default": "./main.mjs"
-        }
-    },
+    "type": "module",
+    "main": "src/main.js",
     "scripts": {
         "test": "echo Ok",
         "requirements": "yarn global add --ignore-optional parcel-bundler http-server",
         "deploy": "npm run build && node ./local/deploy.js",
         "commit": "npm run build && node ./local/commit.js",
-        "build": "parcel build ./main.js -o rin-front.js --global rfront --no-source-maps",
-        "watch": "parcel watch ./main.js -d local -o rin-front.js --global rfront --no-hmr",
+        "build": "parcel build ./src/main.js -o rin-front.js --global rfront --no-source-maps --no-cache",
+        "watch": "parcel watch ./src/main.js -d local -o rin-front.js --global rfront --no-hmr --no-cache",
         "serve": "http-server -c-1 -p 8080 ./local"
     },
     "repository": {
@@ -33,14 +28,12 @@
     ],
     "files": [
         "dist/",
-        "elems/",
-        "*.js",
-        "*.mjs",
+        "src/",
         "LICENSE",
         "README.md"
     ],
     "dependencies": {
-        "@rsthn/rin": "^2.0.21",
+        "@rsthn/rin": "^2.0.29",
         "base-64": "^1.0.0",
         "node-fetch": "^2.6.1"
     }

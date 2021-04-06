@@ -1,5 +1,5 @@
 /*
-**	rin-front/elems/r-table
+**	r-table
 **
 **	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -54,15 +54,15 @@
 		[data-sort]			Added to th/td elements in thead, marks the column as sortable.
 */
 
-const { Rin, Template } = require('@rsthn/rin');
-let Element = require('../element');
-let DataSource = require('../data-source');
+import { Rin, Template } from '@rsthn/rin';
+import Element from '../element.js';
+import DataSource from '../data-source.js';
 
 /*
 **	Connects to a DataSource and renders its contents as a table.
 */
 
-Element.register ('r-table',
+export default Element.register ('r-table',
 {
 	source: null,
 	template: null,

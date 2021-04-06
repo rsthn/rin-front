@@ -18,7 +18,7 @@
 **	Collection of useful easing functions (imported from Cherry source code).
 */
 
-const Easing = module.exports =
+const Easing =
 {
 	/**
 	**	Interpolates numeric values between two objects (`src` and `dst`) using the specified `duration` (in seconds) and `easing` function. Note that all four parameters
@@ -345,3 +345,5 @@ const Easing = module.exports =
 		}
 	}
 };
+
+export default Easing;

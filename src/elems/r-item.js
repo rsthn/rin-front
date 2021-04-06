@@ -1,5 +1,5 @@
 /*
-**	rin-front/elems/r-item
+**	elems/r-item
 **
 **	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -19,9 +19,9 @@
 	</r-item>
 */
 
-let Element = require('../element');
+import Element from '../element.js';
 
-Element.register ('r-item',
+export default Element.register ('r-item',
 {
 	/**
 	**	Initializes the element.

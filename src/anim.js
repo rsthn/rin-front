@@ -14,13 +14,13 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-const { Rin, Class } = require('@rsthn/rin');
+import { Rin, Class } from '@rsthn/rin';
 
 /**
 **	Class to animate properties using rules (imported from Cherry source code).
 */
 
-const Anim = module.exports = Class.extend
+const Anim = Class.extend
 ({
 	list: null,
 
@@ -582,3 +582,5 @@ const Anim = module.exports = Class.extend
 		return this;
 	}
 });
+
+export default Anim;

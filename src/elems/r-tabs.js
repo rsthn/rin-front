@@ -1,5 +1,5 @@
 /*
-**	rin-front/elems/r-tabs
+**	elems/r-tabs
 **
 **	Copyright (c) 2019-2020, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -44,10 +44,10 @@
 	}
 */
 
-let Element = require('../element');
-let Router = require('../router');
+import Element from '../element.js';
+import Router from '../router.js';
 
-Element.register ('r-tabs',
+export default Element.register ('r-tabs',
 {
 	/*
 	**	Container element for tab content.

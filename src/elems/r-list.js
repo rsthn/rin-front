@@ -1,5 +1,5 @@
 /*
-**	rin-front/elems/r-list
+**	elems/r-list
 **
 **	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -35,15 +35,15 @@
 		.x-not-empty 		Shows the element when there is data in the table.
 */
 
-const { Rin, ModelList, Template } = require('@rsthn/rin');
-let Element = require('../element');
+import { Rin, ModelList, Template } from '@rsthn/rin';
+import Element from '../element.js';
 
 /*
 **	Connects to a ModelList and renders its contents using a template. When using "dynamic" template, the contents can be other custom elements, and
 **	the model of each item can be accessed by using data-model=":list-item", which will cause the item model to be added to the element.
 */
 
-Element.register ('r-list',
+export default Element.register ('r-list',
 {
 	list: null,
 

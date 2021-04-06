@@ -14,7 +14,7 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-const { Rin, Model, Template } = require('@rsthn/rin');
+import { Rin, Model, Template } from '@rsthn/rin';
 
 /**
 **	Map containing the original prototypes for all registered elements.
@@ -32,7 +32,7 @@ const elementClasses = { };
 **	self or child-elements, and several utility methods.
 */
 
-const Element = module.exports = 
+const Element = 
 {
 	/**
 	**	Internal element ID. Added as namespace to model events. Ensures that certain model events are run locally only, not affecting other event handlers.
@@ -1422,3 +1422,5 @@ HTMLElement.prototype.querySelectorParent = function (selector)
 
 	return elem;
 };
+
+export default Element;

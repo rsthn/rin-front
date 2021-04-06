@@ -14,16 +14,17 @@
 **	USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-const base64 = require('base-64');
+import base64 from 'base-64';
+import _fetch from 'node-fetch';
 
 if (!('fetch' in global))
-	global.fetch = require('node-fetch');
+	global.fetch = _fetch;
 
 /**
 **	API interface utility functions.
 */
 
-module.exports =
+export default
 {
 	/**
 	**	Target URL for all the API requests. Set by calling `setEndPoint`.

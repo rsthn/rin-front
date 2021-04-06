@@ -1,5 +1,5 @@
 /*
-**	rin-front/elems/r-select
+**	elems/r-select
 **
 **	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
@@ -18,14 +18,14 @@
 	<r-select data-list="window.dataList1" data-blank=""></r-select>
 */
 
-const { Rin, ModelList } = require('@rsthn/rin');
-let Element = require('../element');
+import { Rin, ModelList } from '@rsthn/rin';
+import Element from '../element.js';
 
 /*
 **	Connects to a ModelList and renders its contents as a <select> element.
 */
 
-Element.register ('r-select',
+export default Element.register ('r-select',
 {
 	list: null,
 	container: null,
