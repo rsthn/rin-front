@@ -239,7 +239,7 @@ export default Element.register ('r-form',
 	{
 		this.classList.remove('busy');
 
-		this.querySelectorAll('.message, .loading-indicator').forEach(i => i.classList.add('x-hidden') );
+		this.querySelectorAll('.message').forEach(i => i.classList.add('x-hidden') );
 		this.querySelectorAll('span.field-error').forEach(i => i.remove());
 
 		this.querySelectorAll('.field-error').forEach(i => { i.classList.remove('field-error'); i.classList.remove('is-invalid'); });
@@ -266,9 +266,7 @@ export default Element.register ('r-form',
 	_onSuccess: function(r)
 	{
 		this.classList.remove('busy');
-
-		let tmp = this.querySelector('.loading-indicator');
-		if (tmp) tmp.classList.add('x-hidden');
+		let tmp;
 
 		this.dispatch ('formSuccess', r);
 
@@ -282,9 +280,7 @@ export default Element.register ('r-form',
 	_onFailure: function(r)
 	{
 		this.classList.remove('busy');
-
-		let tmp = this.querySelector('.loading-indicator');
-		if (tmp) tmp.classList.add('x-hidden');
+		let tmp;
 
 		this.dispatch ('formError', r);
 
@@ -299,7 +295,7 @@ export default Element.register ('r-form',
 					if (!f) continue;
 				}
 
-				tmp = document.createElement('span');
+				let tmp = document.createElement('span');
 				tmp.classList.add('field-error');
 				tmp.innerHTML = this.filterString(r.fields[i], r);
 
@@ -368,9 +364,6 @@ export default Element.register ('r-form',
 		this.clearMarkers();
 
 		this.classList.add('busy');
-
-		let tmp = this.querySelector('.loading-indicator');
-		if (tmp) tmp.classList.remove('x-hidden');
 
 		if (typeof(f) != 'function')
 		{

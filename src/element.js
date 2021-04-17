@@ -102,6 +102,12 @@ const Element =
 		this._list_visible = [];
 		this._list_property = [];
 
+		if ('root' in this.dataset)
+		{
+			if (this.dataset.root == 'false')
+				this.isRoot = false;
+		}
+
 		this.style.display = 'block';
 
 		this.refs = { };
@@ -1111,7 +1117,7 @@ const Element =
 				while (elem != null)
 				{
 // if (this.dataset.ref) console.log(this.tagName + ' ' + this.dataset.ref + ' SEARCH ' + elem.tagName + ' , isRoot=' + elem.isRoot); //violet
-					if ('isRoot' in elem && elem.isRoot)
+					if ('isRoot' in elem && elem.isRoot == true)
 						return elem;
 
 					elem = elem.parentElement;
