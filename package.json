@@ -1,6 +1,6 @@
 {
     "name": "@rsthn/rin-front",
-    "version": "1.0.31",
+    "version": "1.0.32",
     "description": "Rin Front-End Library",
     "type": "module",
     "main": "src/main.js",

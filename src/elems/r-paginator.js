@@ -132,6 +132,9 @@ export default Element.register ('r-paginator',
 	*/
 	onRequestPropertyChanged: function(evt, args)
 	{
+		if (args.name == 'count' || args.name == 'offset')
+			return;
+
 		this.model.set(args.name, args.value);
 	},
 

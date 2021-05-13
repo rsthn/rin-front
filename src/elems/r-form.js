@@ -86,6 +86,10 @@ export default Element.register ('r-form',
 						val = i.checked ? '1' : '0';
 						break;
 
+					case 'field':
+						val = i.getValue();
+						break;
+
 					case 'file':
 						val = '';
 						break;
@@ -158,6 +162,11 @@ export default Element.register ('r-form',
 					f.checked = value == f.value;
 					break;
 
+				case 'field':
+					f.val = f.dataset.value = value;
+					f.setValue(value);
+					break;
+
 				case 'file':
 					if ((value instanceof File) || (value instanceof Blob))
 					{
@@ -208,6 +217,10 @@ export default Element.register ('r-form',
 
 				case 'radio':
 					if (f.checked) _value = f.value;
+					break;
+
+				case 'field':
+					_value = f.getValue();
 					break;
 
 				case 'file':
@@ -272,7 +285,7 @@ export default Element.register ('r-form',
 
 		if (r.message && (tmp = this.querySelector('.message.success')) != null)
 		{
-			tmp.innerHTML = this.filterString(r.message, r);
+			tmp.innerHTML = this.filterString(r.message.replace(/\n/g, "<br/>"), r);
 			tmp.classList.remove('x-hidden');
 		}
 	},
@@ -297,7 +310,7 @@ export default Element.register ('r-form',
 
 				let tmp = document.createElement('span');
 				tmp.classList.add('field-error');
-				tmp.innerHTML = this.filterString(r.fields[i], r);
+				tmp.innerHTML = this.filterString(r.fields[i].replace(/\n/g, "<br/>"), r);
 
 				f.classList.add('field-error');
 				f.classList.add('is-invalid');
@@ -314,7 +327,7 @@ export default Element.register ('r-form',
 
 			if (r.error && (tmp = this.querySelector('.message.error')) != null)
 			{
-				tmp.innerHTML = this.filterString(r.error, r);
+				tmp.innerHTML = this.filterString(r.error.replace(/\n/g, "<br/>"), r);
 				tmp.classList.remove('x-hidden');
 			}
 		}
@@ -322,7 +335,7 @@ export default Element.register ('r-form',
 		{
 			if ((tmp = this.querySelector('.message.error')) != null)
 			{
-				tmp.innerHTML = this.filterString(r.error, r) || ('Error: ' + r.response);
+				tmp.innerHTML = this.filterString(r.error.replace(/\n/g, "<br/>"), r) || ('Error: ' + r.response);
 				tmp.classList.remove('x-hidden');
 			}
 		}

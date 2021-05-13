@@ -236,5 +236,25 @@ export default EventDispatcher.extend
 		Api.fetch(data).then(r => {
 			callback(r);
 		});
+	},
+
+	fetchData: function (params)
+	{
+		let data = {...this.request.get(), ...params};
+
+		if (data.f[0] == '.')
+			data.f = this.basePath + data.f;
+
+		return Api.fetch(data);
+	},
+
+	makeUrl: function (params)
+	{
+		let data = {...this.request.get(), ...params};
+
+		if (data.f[0] == '.')
+			data.f = this.basePath + data.f;
+
+		return Api.makeUrl(data);
 	}
 });

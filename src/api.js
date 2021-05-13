@@ -359,5 +359,13 @@ export default
 		return new Promise((resolve, reject) => {
 			this.apiCall(params, resolve, reject);
 		});
+	},
+
+	/**
+	**	Executes an automatic API call, returns a promise.
+	*/
+	makeUrl: function (data)
+	{
+		return this.apiUrl + (this.apiUrl.indexOf('?') == -1 ? '?' : '&') + this.encodeParams(data);
 	}
 };
