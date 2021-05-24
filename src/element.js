@@ -521,7 +521,9 @@ const Element =
 			if (evt.source === selector)
 			{
 				evt.continuePropagation = false;
-				handler.call (this, evt, evt.detail);
+
+				if (handler.call (this, evt, evt.detail) === true)
+					evt.continuePropagation = true;
 			}
 		}
 		else if (selector && selector != '*')
@@ -534,7 +536,10 @@ const Element =
 				if (i !== -1)
 				{
 					evt.continuePropagation = false;
-					handler.call (this, evt, evt.detail);
+
+					if (handler.call (this, evt, evt.detail) === true)
+						evt.continuePropagation = true;
+
 					break;
 				}
 				else
@@ -546,7 +551,9 @@ const Element =
 		else
 		{
 			evt.continuePropagation = false;
-			handler.call (this, evt, evt.detail);
+
+			if (handler.call (this, evt, evt.detail) === true)
+				evt.continuePropagation = true;
 		}
 
 		if (evt.continuePropagation === false)
@@ -1015,13 +1022,14 @@ const Element =
 						break;
 
 					case 'field':
+						this._list_property[i].val = this._list_property[i].dataset.value = args.value;	
 						this._list_property[i].setValue (args.value);
 						trigger = false;
 						break;
 
 					default:
 						this._list_property[i].value = args.value;
-						this._list_property[i]._value = args.value;
+						this._list_property[i].val = this._list_property[i].dataset.value = args.value;	
 
 						if (this._list_property[i].value != args.value)
 							trigger = false;

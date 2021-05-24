@@ -30,6 +30,8 @@ export default Element.register ('r-select',
 	list: null,
 	container: null,
 
+	value: '',
+
 	/**
 	**	Initializes the element.
 	*/
@@ -40,32 +42,15 @@ export default Element.register ('r-select',
 
 		for (let attr of this.attributes)
 		{
-			if (attr.nodeName.startsWith('data-_') || attr.nodeName == 'data-list' || attr.nodeName == 'data-blank' || attr.nodeName == 'data-field' || attr.nodeName == 'data-property')
+			if (attr.nodeName.startsWith('data-_') || attr.nodeName == 'data-list' || attr.nodeName == 'data-blank')
 				continue;
 
 			this.container.setAttribute(attr.nodeName, attr.nodeValue);
+			this.removeAttribute(attr.nodeName);
 		}
 
 		this.textContent = ' ';
-		this.type = 'field';
-
 		this.style.display = 'none';
-
-		this.container.onchange = () => this.setValue(this.container.value);
-	},
-
-	getValue: function()
-	{
-		return this.value;
-	},
-
-	setValue: function(value)
-	{
-		if (value === undefined || value === null)
-			value = '';
-
-		this.value = value;
-		this.container.value = value;
 	},
 
 	/**
@@ -142,6 +127,6 @@ export default Element.register ('r-select',
 		list.forEach(i => s += '<option value="'+i.get(value)+'">'+i.get(label)+'</option>');
 
 		this.container.innerHTML = s;
-		this.container.value = this.value;
+		this.container.value = this.container.dataset.value;
 	}
 });
