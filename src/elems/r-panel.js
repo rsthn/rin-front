@@ -1,7 +1,7 @@
 /*
 **	elems/r-panel
 **
-**	Copyright (c) 2019-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -61,13 +61,6 @@ export default Element.register ('r-panel',
 		};
 
 		this.hide();
-	},
-
-	/**
-	**	Executed when the children of the element are ready.
-	*/
-	ready: function()
-	{
 	},
 
 	/**

@@ -1,7 +1,7 @@
 /*
 **	rin-front/element
 **
-**	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2013-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -473,6 +473,9 @@ const Element =
 
 				selector = this;
 			}
+
+			if (selector[0] == '&')
+				selector = "[data-ref='"+selector.substr(1)+"']";
 
 			if (name.substr(0, 1) == '#')
 			{
@@ -1411,6 +1414,30 @@ const Element =
 			elem.classList.remove(args[1]);
 		else
 			elem.classList.add(args[1]);
+	},
+
+	/**
+	**	:volatileClass <className> [<selector>]
+	**
+	**	Adds the CSS class to the element and any click outside will cause it to be removed.
+	*/
+	":volatileClass": function (args, evt)
+	{
+		let elem = evt.source;
+
+		if ('2' in args)
+			elem = document.querySelector(args[2]);
+
+		if (!elem) return;
+
+		elem.classList.add(args[1]);
+
+		let fn = () => {
+			window.removeEventListener('click', fn, true);
+			elem.classList.remove(args[1]);
+		};
+
+		window.addEventListener('click', fn, true);
 	}
 };
 

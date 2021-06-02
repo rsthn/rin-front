@@ -1,7 +1,7 @@
 /*
 **	rin-front/main
 **
-**	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2013-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -21,6 +21,7 @@ import _DataSource from './data-source.js'; export const DataSource = _DataSourc
 import _Easing from './easing.js'; export const Easing = _Easing;
 import _Anim from './anim.js'; export const Anim = _Anim;
 import _Elements from './elements.js';
+import _Utils from './utils.js'; export const Utils = _Utils;
 
 import * as _Rin from '@rsthn/rin';
 export const Rin = _Rin.Rin;

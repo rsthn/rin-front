@@ -1,7 +1,7 @@
 /*
 **	elems/r-tabs
 **
-**	Copyright (c) 2019-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -57,20 +57,17 @@ export default Element.register ('r-tabs',
 	/**
 	**	Element events.
 	*/
-	events:
+	'event click [data-name]': function (evt)
 	{
-		'click [data-name]': function (evt)
+		evt.continuePropagation = true;
+
+		if (this.dataset.baseRoute)
 		{
-			evt.continuePropagation = true;
-
-			if (this.dataset.baseRoute)
-			{
-				location = "#" + Router.realLocation(this.dataset.baseRoute.replace('@', evt.source.dataset.name));
-				return;
-			}
-
-			this.selectTab (evt.source.dataset.name);
+			location = "#" + Router.realLocation(this.dataset.baseRoute.replace('@', evt.source.dataset.name));
+			return;
 		}
+
+		this.selectTab (evt.source.dataset.name);
 	},
 
 	/**
@@ -80,6 +77,19 @@ export default Element.register ('r-tabs',
 	{
 		this._routeHandler = (evt, args) =>
 		{
+			if (Router.location != '')
+			{
+				this.querySelectorAll("[href]").forEach(link =>
+				{
+					if (!link.href) return;
+
+					if (Router.location.startsWith(link.href.substr(link.href.indexOf('#')+1)))
+						link.classList.add('active');
+					else
+						link.classList.remove('active');
+				});
+			}
+
 			if (!args.route.changed)
 				return;
 
@@ -93,7 +103,16 @@ export default Element.register ('r-tabs',
 	ready: function()
 	{
 		if ("container" in this.dataset)
-			this.container = document.querySelector(this.dataset.container);
+		{
+			if (this.dataset.container == ':previousElement')
+				this.container = this.previousElementSibling;
+			else if (this.dataset.container == ':nextElement')
+				this.container = this.nextElementSibling;
+			else if (this.dataset.container == ':none')
+				this.container = null;
+			else
+				this.container = document.querySelector(this.dataset.container);
+		}
 		else
 			this.container = this.nextElementSibling;
 

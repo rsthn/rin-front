@@ -1,7 +1,7 @@
 /*
 **	rin-front/api
 **
-**	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2013-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -241,6 +241,7 @@ export default
 		let options =
 		{
 			credentials: 'include',
+			mode: 'cors',
 			headers: {
 				'Accept': 'text/html,application/xhtml+xml,application/xml,application/json;q=0.9',
 			},

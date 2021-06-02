@@ -1,7 +1,7 @@
 /*
 **	rin-front/elements
 **
-**	Copyright (c) 2013-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2013-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -22,6 +22,7 @@ import _Item from './elems/r-item.js';
 import _Paginator from './elems/r-paginator.js';
 import _Table from './elems/r-table.js';
 import _Select from './elems/r-select.js';
+import _ImageCropper from './elems/r-image-cropper.js';
 
 export default {
 	Tabs: _Tabs,
@@ -32,4 +33,5 @@ export default {
 	Paginator: _Paginator,
 	Table: _Table,
 	Select: _Select,
+	ImageCropper: _ImageCropper
 };

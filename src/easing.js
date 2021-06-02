@@ -1,7 +1,7 @@
 /*
 **	rin-front/easing
 **
-**	Copyright (c) 2016-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2016-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -37,7 +37,6 @@ const Easing =
 			count++;
 		}
 
-		let handle = null;
 		let lastTime = Date.now()/1000;
 		let dt = 0;
 
@@ -65,11 +64,10 @@ const Easing =
 
 			callback (data, count == 0);
 
-			if (count == 0)
-				clearInterval(handle);
+			if (count != 0)
+				requestAnimationFrame(interpolator);
 		};
 
-		handle = setInterval(interpolator, 16);
 		interpolator();
 	},
 

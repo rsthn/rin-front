@@ -1,7 +1,7 @@
 /*
 **	elems/r-form
 **
-**	Copyright (c) 2019-2020, RedStar Technologies, All rights reserved.
+**	Copyright (c) 2019-2021, RedStar Technologies, All rights reserved.
 **	https://www.rsthn.com/
 **
 **	THIS LIBRARY IS PROVIDED BY REDSTAR TECHNOLOGIES "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
@@ -29,6 +29,7 @@ r-form span.field-error {
 }
 */
 
+import { Template } from '@rsthn/rin';
 import Element from '../element.js';
 import Api from '../api.js';
 
@@ -124,6 +125,15 @@ export default Element.register ('r-form',
 	*/
 	filterString: function (str, r)
 	{
+		if (!str || !('messages' in global))
+			return str;
+
+		if (str.startsWith('@messages.'))
+		{
+			if (str.substr(10) in global.messages)
+				str = Template.eval(global.messages[str.substr(10)], r);
+		}
+
 		return str;
 	},
 
@@ -285,7 +295,7 @@ export default Element.register ('r-form',
 
 		if (r.message && (tmp = this.querySelector('.message.success')) != null)
 		{
-			tmp.innerHTML = this.filterString(r.message.replace(/\n/g, "<br/>"), r);
+			tmp.innerHTML = this.filterString(r.message, r).replace(/\n/g, "<br/>");
 			tmp.classList.remove('x-hidden');
 		}
 	},
@@ -310,7 +320,7 @@ export default Element.register ('r-form',
 
 				let tmp = document.createElement('span');
 				tmp.classList.add('field-error');
-				tmp.innerHTML = this.filterString(r.fields[i].replace(/\n/g, "<br/>"), r);
+				tmp.innerHTML = this.filterString(r.fields[i], r).replace(/\n/g, "<br/>");
 
 				f.classList.add('field-error');
 				f.classList.add('is-invalid');
@@ -327,7 +337,7 @@ export default Element.register ('r-form',
 
 			if (r.error && (tmp = this.querySelector('.message.error')) != null)
 			{
-				tmp.innerHTML = this.filterString(r.error.replace(/\n/g, "<br/>"), r);
+				tmp.innerHTML = this.filterString(r.error, r).replace(/\n/g, "<br/>");
 				tmp.classList.remove('x-hidden');
 			}
 		}
@@ -335,7 +345,7 @@ export default Element.register ('r-form',
 		{
 			if ((tmp = this.querySelector('.message.error')) != null)
 			{
-				tmp.innerHTML = this.filterString(r.error.replace(/\n/g, "<br/>"), r) || ('Error: ' + r.response);
+				tmp.innerHTML = this.filterString(r.error, r).replace(/\n/g, "<br/>") || ('Error: ' + r.response);
 				tmp.classList.remove('x-hidden');
 			}
 		}
