@@ -186,8 +186,11 @@ export default EventDispatcher.extend
 
 		data.f = this.basePath + '.list';
 
+		this.dispatchEvent('listLoading');
+
 		Api.fetch(data).then(r => {
 			this.list.setData(r.response == 200 ? r.data : null);
+			this.dispatchEvent('listLoaded');
 			this.dispatchEvent('listChanged');
 		});
 	},
@@ -198,8 +201,11 @@ export default EventDispatcher.extend
 
 		data.f = this.basePath + '.enum';
 
+		this.dispatchEvent('enumLoading');
+
 		Api.fetch(data).then(r => {
 			this.enum.setData(r.response == 200 ? r.data : null);
+			this.dispatchEvent('enumLoaded');
 			this.dispatchEvent('enumChanged');
 		});
 	},
@@ -210,8 +216,11 @@ export default EventDispatcher.extend
 
 		data.f = this.basePath + '.count';
 
+		this.dispatchEvent('countLoading');
+
 		Api.fetch(data).then(r => {
 			this.count = r.response == 200 ? r.count : 0;
+			this.dispatchEvent('countLoaded');
 			this.dispatchEvent('countChanged');
 		});
 	},

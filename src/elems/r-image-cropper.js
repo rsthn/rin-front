@@ -108,12 +108,12 @@ export default Element.register ('r-image-cropper',
 	/*
 	**	Returns the blob and URL representing the current canvas state.
 	*/
-	getBlobAndUrl: function(callback)
+	getBlobAndUrl: function(callback, type='image/png', quality=0.9)
 	{
-		this.canvas.toBlob((blob) =>
-		{
+		this.canvas.toBlob((blob) => {
 			callback(blob, URL.createObjectURL(blob));
-		});
+		},
+		type, quality);
 	},
 
 	/*

@@ -1,17 +1,33 @@
 {
     "name": "@rsthn/rin-front",
-    "version": "1.0.34",
+    "version": "1.0.35",
     "description": "Rin Front-End Library",
     "type": "module",
     "main": "src/main.js",
     "scripts": {
         "test": "echo Ok",
-        "requirements": "yarn global add --ignore-optional parcel-bundler http-server",
+        "requirements": "yarn global add --ignore-optional parcel http-server",
         "deploy": "npm run build && node ./local/deploy.js",
         "commit": "npm run build && node ./local/commit.js",
-        "build": "parcel build ./src/main.js -o rin-front.js --global rfront --no-source-maps --no-cache",
-        "watch": "parcel watch ./src/main.js -d local -o rin-front.js --global rfront --no-hmr --no-cache",
+        "build": "parcel build --no-cache --target target_dist src/_export.js --no-source-maps",
+        "watch": "parcel watch --no-cache --target target_local src/_export.js --no-hmr",
         "serve": "http-server -c-1 -p 8080 ./local"
+    },
+    "target_dist": "dist/rin-front.js",
+    "target_local": "local/rin-front.js",
+    "targets": {
+        "target_local": {
+            "isLibrary": false,
+            "engines": {
+                "browsers": "since 2020-01"
+            }
+        },
+        "target_dist": {
+            "isLibrary": false,
+            "engines": {
+                "browsers": "since 2020-01"
+            }
+        }
     },
     "repository": {
         "type": "git",
@@ -23,9 +39,6 @@
         "url": "https://github.com/rsthn/rin-front/issues"
     },
     "homepage": "https://github.com/rsthn/rin-front#readme",
-    "browserslist": [
-        "since 2019-01"
-    ],
     "files": [
         "dist/",
         "src/",

@@ -290,6 +290,12 @@ const Element =
 			tmp.shift();
 		}
 
+		if (tmp.length && tmp[0] == 'root')
+		{
+			ref = this.getRoot();
+			tmp.shift();
+		}
+
 		while (ref != null && tmp.length != 0)
 			ref = ref[tmp.shift()];
 
@@ -576,6 +582,7 @@ const Element =
 	listen: function (eventName, selector, handler)
 	{
 		let eventCatcher = false;
+		let eventImmediate = false;
 
 		if (Rin.typeOf(selector) == 'function')
 		{
@@ -587,6 +594,12 @@ const Element =
 		{
 			eventName = eventName.substr(0, eventName.length-1);
 			eventCatcher = true;
+		}
+
+		if (eventName[0] == '!')
+		{
+			eventName = eventName.substr(1);
+			eventImmediate = true;
 		}
 
 		let callback0 = null;
@@ -609,16 +622,10 @@ const Element =
 				evt.firstCaptureCount++;
 
 			if (eventCatcher == true)
-			{
 				evt.queue.push([this, selector, handler]);
-				return;
-			}
 
-			//VIOLET: Possibly need a configuration option for this behavior.
-			//let root = this.findRoot (evt.target);
-			//if (root !== this) return;
-
-			//this._eventHandler(evt, selector, handler);
+			if (eventImmediate == true)
+				this._eventHandler(evt, selector, handler);
 		},
 		true);
 
@@ -627,7 +634,7 @@ const Element =
 			if (evt.continuePropagation === false)
 				return;
 
-			if (eventCatcher != true)
+			if (eventCatcher != true && eventImmediate != true)
 				this._eventHandler(evt, selector, handler);
 
 			if (evt.firstCapture === this && evt.continuePropagation !== false)
@@ -658,11 +665,26 @@ const Element =
 	},
 
 	/**
+	**	Creates X
+	*/
+	createEventObject: function(eventName, args, bubbles)
+	{
+		let evt;
+
+		if (eventName == 'click')
+			evt = new MouseEvent(eventName, { bubbles: bubbles, detail: args });
+		else
+			evt = new CustomEvent (eventName, { bubbles: bubbles, detail: args });
+
+		return evt;
+	},
+
+	/**
 	**	Dispatches a new event with the specified name and the given arguments.
 	*/
 	dispatch: function (eventName, args=null, bubbles=true)
 	{
-		this.dispatchEvent (new CustomEvent (eventName, { bubbles: bubbles, detail: args }));
+		this.dispatchEvent (this.createEventObject(eventName, args, bubbles));
 	},
 
 	/**
@@ -670,7 +692,7 @@ const Element =
 	*/
 	dispatchOn: function (elem, eventName, args=null, bubbles=true)
 	{
-		elem.dispatchEvent (new CustomEvent (eventName, { bubbles: bubbles, detail: args }));
+		elem.dispatchEvent (this.createEventObject(eventName, args, bubbles));
 	},
 
 	/**

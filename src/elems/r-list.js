@@ -20,6 +20,10 @@
 		<template data-mode="static|dynamic">
 		</template>
 
+		<div class="x-empty">
+			Nothing to show.
+		</div>
+
 		<div class="x-data">
 		</div>
 
@@ -31,8 +35,10 @@
 		}
 
 	Modifiers:
-		.x-empty			Show the element when there is no data in the table.
-		.x-not-empty 		Shows the element when there is data in the table.
+		.x-empty-null		Visible when the list is in undefined state (before first load).
+		.x-empty			Visible when there is no data in the list.
+		.x-not-empty 		Visible when there is data in the list.
+		.x-loading 			Visible when the list is loading.
 */
 
 import { Rin, ModelList, Template } from '@rsthn/rin';
@@ -61,7 +67,6 @@ export default Element.register ('r-list',
 		if (!this.container) this.container = this;
 
 		let tmp = this.template_elem = this.querySelector('template');
-
 		if (tmp)
 		{
 			if (tmp.dataset.mode != 'dynamic')
@@ -80,7 +85,9 @@ export default Element.register ('r-list',
 			this.template = () => '';
 
 		this.container.textContent = ' ';
-		this.setEmpty(true);
+
+		this.setEmpty(null);
+		this.setLoading(null);
 	},
 
 	/**
@@ -99,25 +106,44 @@ export default Element.register ('r-list',
 	},
 
 	/*
-	**	Indicates if the list is empty. Elements having x-when-empty will be hidden.
+	**	Indicates if the list is empty. Elements having x-empty, x-not-empty and x-empty-null will be updated.
 	*/
 	setEmpty: function (value)
 	{
 		if (this.isEmpty === value)
 			return;
 
-		if (value)
+		if (value === true)
 		{
 			this.querySelectorAll('.x-empty').forEach(i => i.classList.remove('x-hidden'));
 			this.querySelectorAll('.x-not-empty').forEach(i => i.classList.add('x-hidden'));
+			this.querySelectorAll('.x-empty-null').forEach(i => i.classList.add('x-hidden'));
+		}
+		else if (value === false)
+		{
+			this.querySelectorAll('.x-empty').forEach(i => i.classList.add('x-hidden'));
+			this.querySelectorAll('.x-not-empty').forEach(i => i.classList.remove('x-hidden'));
+			this.querySelectorAll('.x-empty-null').forEach(i => i.classList.add('x-hidden'));
 		}
 		else
 		{
 			this.querySelectorAll('.x-empty').forEach(i => i.classList.add('x-hidden'));
-			this.querySelectorAll('.x-not-empty').forEach(i => i.classList.remove('x-hidden'));
+			this.querySelectorAll('.x-not-empty').forEach(i => i.classList.add('x-hidden'));
+			this.querySelectorAll('.x-empty-null').forEach(i => i.classList.remove('x-hidden'));
 		}
 
 		this.isEmpty = value;
+	},
+
+	/*
+	**	Indicates if the list is loading. Elements having x-loading will be updated.
+	*/
+	setLoading: function (value)
+	{
+		if (value === true)
+			this.querySelectorAll('.x-loading').forEach(i => i.classList.remove('x-hidden'));
+		else
+			this.querySelectorAll('.x-loading').forEach(i => i.classList.add('x-hidden'));
 	},
 
 	/**
@@ -129,9 +155,20 @@ export default Element.register ('r-list',
 			return;
 
 		if (this.list != null)
+		{
+			if (this.list.dataSource)
+				this.list.dataSource.removeEventListener (this.eid+':*');
+
 			this.list.removeEventListener (this.eid+':*');
+		}
 
 		this.list = list;
+
+		if (this.list.dataSource)
+		{
+			this.list.dataSource.addEventListener (this.eid+':listLoading', this.onLoading, this);
+			this.list.dataSource.addEventListener (this.eid+':listLoaded', this.onLoaded, this);
+		}
 
 		this.list.addEventListener (this.eid+':itemsCleared', this.onItemsCleared, this);
 		this.list.addEventListener (this.eid+':itemsChanged', this.onItemsChanged, this);
@@ -167,6 +204,22 @@ export default Element.register ('r-list',
 		}
 
 		return elem;
+	},
+
+	/*
+	**	Executed when the list is loading.
+	*/
+	onLoading: function()
+	{
+		this.setLoading(true);
+	},
+
+	/*
+	**	Executed when the list finished loading.
+	*/
+	onLoaded: function()
+	{
+		this.setLoading(false);
 	},
 
 	/*
