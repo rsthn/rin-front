@@ -1,6 +1,6 @@
 # Rin Front-End Library
 
-This library provides functionality to build custom elements, support connect to [Wind](https://github.com/rsthn/rose-webservice)-compliant web services and several pre-made elements to develop web applications fast.
+This library provides functionality to build custom elements, support connecting directly to [Wind](https://github.com/rsthn/rose-core/blob/master/Wind.md)-compliant web services and several pre-made elements to develop web applications fast.
 
 ## Installation
 

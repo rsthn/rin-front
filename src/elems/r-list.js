@@ -15,7 +15,7 @@
 */
 
 /*
-	<r-list data-list="window.dataList1" data-container=".x-data" data-dynamic="false">
+	<r-list data-list="window.dataList1" data-container=".x-data" data-wrap="false|true">
 
 		<template data-mode="static|dynamic">
 		</template>
@@ -47,6 +47,9 @@ import Element from '../element.js';
 /*
 **	Connects to a ModelList and renders its contents using a template. When using "dynamic" template, the contents can be other custom elements, and
 **	the model of each item can be accessed by using data-model=":list-item", which will cause the item model to be added to the element.
+**
+**	Additionally root attribute data-wrap can be set to 'true' to wrap the template contents inside a div with a data-iid representing the ID of the
+**	item, this will cause any changes to items to affect only the specific item in question.
 */
 
 export default Element.register ('r-list',
@@ -252,7 +255,7 @@ export default Element.register ('r-list',
 
 		for (let data of this.list.getData())
 		{
-			if (this.dataset.dynamic == 'true')
+			if (this.dataset.wrap == 'true')
 				this.container.append(this.buildItem(this.list.itemId[i++], data));
 			else
 				this.container.innerHTML += this.buildItem(this.list.itemId[i++], data, true);
@@ -266,7 +269,7 @@ export default Element.register ('r-list',
 	*/
 	onItemRemoved: function(evt, args)
 	{
-		if (this.dataset.dynamic != 'true')
+		if (this.dataset.wrap != 'true')
 		{
 			this.onItemsChanged();
 			return;
@@ -286,7 +289,7 @@ export default Element.register ('r-list',
 	{
 		if (this.isDynamicTemplate) return;
 
-		if (this.dataset.dynamic != 'true')
+		if (this.dataset.wrap != 'true')
 		{
 			this.onItemsChanged();
 			return;
@@ -305,14 +308,14 @@ export default Element.register ('r-list',
 	{
 		if (args.position == 'head')
 		{
-			if (this.dataset.dynamic == 'true')
+			if (this.dataset.wrap == 'true')
 				this.container.prepend(this.buildItem(args.id, args.item));
 			else
 				this.container.innerHTML = this.buildItem(args.id, args.item, true) + this.container.innerHTML;
 		}
 		else
 		{
-			if (this.dataset.dynamic == 'true')
+			if (this.dataset.wrap == 'true')
 				this.container.append(this.buildItem(args.id, args.item));
 			else
 				this.container.innerHTML += this.buildItem(args.id, args.item, true);

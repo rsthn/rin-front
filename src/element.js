@@ -151,6 +151,9 @@ const Element =
 
 			this.ready();
 
+			if (this.root && this.dataset.ref)
+				this.root.onRefAdded (this.dataset.ref, this);
+
 			this.collectWatchers();
 
 			let root = this.findCustomParent(this);
@@ -948,14 +951,14 @@ const Element =
 	/**
 	**	Executed on the root element when a child element has `data-ref` attribute and it was added to it.
 	*/
-	onRefAdded: function (name)
+	onRefAdded: function (name, element)
 	{
 	},
 
 	/**
 	**	Executed on the root element when a child element has `data-ref` attribute and it was removed from it.
 	*/
-	onRefRemoved: function (name)
+	onRefRemoved: function (name, element)
 	{
 	},
 
@@ -1197,8 +1200,8 @@ const Element =
 						this.dataset._pending = 'true';
 				}
 
-				if (this.root && (flags & 2) == 2 && this.dataset.ref)
-					this.root.onRefAdded (this.dataset.ref);
+				//if (this.root && (flags & 2) == 2 && this.dataset.ref)
+				//	this.root.onRefAdded (this.dataset.ref);
 			}
 
 			connectedCallback ()
@@ -1226,7 +1229,7 @@ const Element =
 				{
 					if (this.dataset.ref)
 					{
-						this.root.onRefRemoved (this.dataset.ref);
+						this.root.onRefRemoved (this.dataset.ref, this);
 
 						delete this.root[this.dataset.ref];
 						delete this.root.refs[this.dataset.ref];
