@@ -1,3 +1,9 @@
+## ⛔ This package has been rebranded. ⛔<br/>Using this is highly discouraged as it will no longer be maintained. <br/><br/>Please migrate to our latest and coolest [riza](https://github.com/rsthn/riza/) package.
+
+</div>
+
+<br/>
+
 # Rin Front-End Library
 
 This library provides functionality to build custom elements, support connecting directly to [Wind](https://github.com/rsthn/rose-core/blob/master/Wind.md)-compliant web services and several pre-made elements to develop web applications fast.
